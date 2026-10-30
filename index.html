@@ -207,6 +207,29 @@ main[hidden]{display:none}
 @keyframes penA{0%,10%{opacity:0;left:300px;top:-120px;transform:translateZ(30px) rotate(20deg)}14%{opacity:1;left:318px;top:10px;transform:translateZ(30px) rotate(20deg)}20%{left:300px;top:14px}26%{left:260px;top:8px}32%{left:225px;top:16px}37%{left:205px;top:10px}40%{left:215px;top:46px}46%{left:250px;top:40px}52%{left:285px;top:52px}58%{left:320px;top:44px}60%{left:325px;top:78px}66%{left:290px;top:72px}72%{opacity:1;left:260px;top:80px;transform:translateZ(30px) rotate(20deg)}76%{opacity:1;left:300px;top:-40px;transform:translateZ(30px) rotate(200deg)}82%,100%{opacity:0;left:340px;top:-200px;transform:translateZ(30px) rotate(540deg)}}
 @media(max-width:480px){.nbscene{zoom:.8}}
 @media(prefers-reduced-motion:reduce){.chalo{animation:none}}
+
+/* ===== important contest notice: mysterious 3D reveal ===== */
+.contest-alert-btn{display:inline-flex;align-items:center;justify-content:center;margin:18px auto 12px;padding:12px 34px;border:1px solid #ff344b;border-radius:12px;background:linear-gradient(145deg,#ff3048,#a90020);color:#fff;font:900 18px "Cairo",sans-serif;cursor:pointer;box-shadow:0 0 8px #ff263f,0 0 20px rgba(255,30,60,.8),inset 0 1px 0 rgba(255,255,255,.3);animation:alertGlow 1.25s ease-in-out infinite alternate}
+@keyframes alertGlow{from{box-shadow:0 0 5px #ff263f,0 0 12px rgba(255,30,60,.55)}to{box-shadow:0 0 13px #ff263f,0 0 30px rgba(255,30,60,.95),0 0 48px rgba(255,30,60,.35)}}
+.contest-notice{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(3,10,22,.42);backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px)}
+.contest-notice[hidden]{display:none}
+.contest-notice-panel{position:relative;width:min(100%,620px);min-height:330px;display:flex;align-items:center;justify-content:center;padding:34px 26px;border:1px solid rgba(218,185,105,.65);border-radius:24px;background:linear-gradient(145deg,rgba(10,29,52,.97),rgba(4,13,28,.98));box-shadow:0 25px 90px rgba(0,0,0,.62),0 0 38px rgba(199,22,48,.18);color:#fff;overflow:hidden;direction:rtl}
+.contest-notice-panel:before{content:"";position:absolute;inset:-50%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,.08),transparent 25%);animation:noticeSweep 7s linear infinite;pointer-events:none}
+@keyframes noticeSweep{to{transform:rotate(360deg)}}
+.notice-close{position:absolute;top:12px;left:14px;z-index:3;width:36px;height:36px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:22px;cursor:pointer}
+.notice-focus{position:relative;z-index:1;text-align:center;animation:focusIn .8s cubic-bezier(.2,.8,.2,1) both}
+.notice-focus strong{display:block;font:1000 clamp(68px,16vw,112px)/1 "Cairo",sans-serif;letter-spacing:5px;color:#f4e6c0;text-shadow:0 2px 0 #9b7d43,0 5px 0 #654b25,0 12px 25px rgba(0,0,0,.8),0 0 30px rgba(231,199,126,.55);transform:perspective(500px) rotateX(18deg);animation:focusPulse 1.5s ease-in-out infinite alternate}
+.notice-focus small{display:block;margin-top:20px;color:#9fb0c6;font-size:13px;letter-spacing:4px}
+@keyframes focusIn{from{opacity:0;transform:scale(.35) rotateX(70deg);filter:blur(18px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
+@keyframes focusPulse{to{transform:perspective(500px) rotateX(-8deg) scale(1.06);filter:brightness(1.25)}}
+.notice-copy{position:relative;z-index:1;max-width:540px;text-align:center;line-height:2.05;font-size:clamp(16px,3.6vw,20px);font-weight:800;animation:copyReveal .9s ease both}
+.notice-copy[hidden],.notice-focus[hidden]{display:none}
+.notice-copy .notice-title{display:block;color:#ff596d;font-size:22px;margin-bottom:15px;text-shadow:0 0 16px rgba(255,50,75,.45)}
+.notice-copy p{margin:0;color:#f5f0e7}
+.notice-copy .notice-sign{display:block;margin-top:20px;color:#d7bd7c;font-size:15px}
+@keyframes copyReveal{from{opacity:0;filter:blur(15px);transform:translateY(15px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
+@media(max-width:480px){.contest-notice-panel{min-height:360px;padding:54px 20px 28px}.notice-copy{line-height:1.9}}
+
 </style>
 <script>try{document.documentElement.dataset.t=localStorage.getItem("ci_theme")||"l"}catch(e){document.documentElement.dataset.t="l"}</script>
 </head>
@@ -329,6 +352,7 @@ main[hidden]{display:none}
       <p class="sub" style="margin:8px 0 0">رقم الـ ID الخاص بك</p>
       <div class="idn" id="rid"></div>
       <p class="sub">احتفظ بالرقم، وتابع قناتنا على تيليجرام لمعرفة الفائزين.</p>
+      <button class="contest-alert-btn" id="contestAlertOpen" type="button">تنبيه هام</button>
       <a class="btn o" href="#home">الرجوع للرئيسية</a>
     </div>
   </div>
@@ -360,6 +384,19 @@ main[hidden]{display:none}
     <div class="nbpen">✒️</div>
   </div></div>
   <div class="nbcap" id="nbcap"></div>
+</div>
+
+
+<div class="contest-notice" id="contestNotice" hidden role="dialog" aria-modal="true" aria-label="تنبيه هام للمسابقة" dir="rtl">
+  <div class="contest-notice-panel">
+    <button class="notice-close" id="contestNoticeClose" type="button" aria-label="إغلاق">×</button>
+    <div class="notice-focus" id="noticeFocus"><strong>ركز</strong><small>تنبيه هام · اقرأ بعناية</small></div>
+    <div class="notice-copy" id="noticeCopy" hidden>
+      <strong class="notice-title">تنبيه هام للمشتركين</strong>
+      <p>خلي بالك لو سجلت نفس الاسم أو اليوزر من أي متصفح تاني أو جهة أخرى، وتم تسجيل نفس اليوزر، وتمت مراجعة المشتركين قبل السحب النهائي، هتعتبر مستبعد. فقط احفظ الأيدي بتاعك ID.</p>
+      <span class="notice-sign">سلام ( فريق برمجة مستثمرين مصريين )</span>
+    </div>
+  </div>
 </div>
 
 <footer id="ftr"></footer>
@@ -619,6 +656,33 @@ continueBtn.addEventListener("click",async()=>{
   closeBook();
   showRegistered({id:res.id,telegram:tg,name});go.disabled=false;continueBtn.disabled=false;
 });
+})();
+
+
+/* Important notice: show a mysterious 3D "ركز" for five seconds, then reveal the full warning. */
+(function(){
+  const open=document.getElementById("contestAlertOpen");
+  const modal=document.getElementById("contestNotice");
+  const close=document.getElementById("contestNoticeClose");
+  const focus=document.getElementById("noticeFocus");
+  const copy=document.getElementById("noticeCopy");
+  let revealTimer=null;
+  function showNotice(){
+    if(!modal)return;
+    if(revealTimer)clearTimeout(revealTimer);
+    focus.hidden=false;copy.hidden=true;modal.hidden=false;
+    document.body.style.overflow="hidden";
+    revealTimer=setTimeout(()=>{focus.hidden=true;copy.hidden=false;},5000);
+  }
+  function hideNotice(){
+    if(revealTimer)clearTimeout(revealTimer);
+    modal.hidden=true;document.body.style.overflow="";
+    focus.hidden=false;copy.hidden=true;
+  }
+  if(open)open.addEventListener("click",showNotice);
+  if(close)close.addEventListener("click",hideNotice);
+  if(modal)modal.addEventListener("click",e=>{if(e.target===modal)hideNotice()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modal&&!modal.hidden)hideNotice()});
 })();
 
 /* ===== page router (hash based) ===== */
