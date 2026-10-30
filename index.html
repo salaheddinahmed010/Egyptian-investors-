@@ -166,6 +166,13 @@ main[hidden]{display:none}
 .rok{text-align:center;padding:10px 0}
 .rok .big{font-size:56px;line-height:1.2}
 .rok .idn{font:800 40px var(--mono);color:var(--gold);direction:ltr;margin:8px 0}
+/* ===== contest username confirmation ===== */
+.rconfirm{position:fixed;inset:0;z-index:190;background:rgba(4,15,30,.82);display:flex;align-items:center;justify-content:center;padding:20px}
+.rconfirm[hidden]{display:none}
+.rconfirm-box{width:min(100%,430px);background:var(--card,#fff);color:var(--tx,#172b45);border:1px solid var(--gold);border-radius:20px;padding:24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.rconfirm-box p{line-height:1.9;margin:12px 0 20px}
+.rconfirm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.rconfirm-actions button{flex:1;min-width:130px}
 /* ===== notebook overlay ===== */
 .nbov{position:fixed;inset:0;z-index:200;background:rgba(6,21,40,.9);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:34px;overflow:hidden}
 .nbov[hidden]{display:none}
@@ -182,6 +189,8 @@ main[hidden]{display:none}
 .nbl.a{top:12px;text-align:right;direction:rtl;clip-path:inset(0 0 0 100%)}
 .nbl.b{top:46px;text-align:left;direction:ltr;clip-path:inset(0 100% 0 0)}
 .nbl.c{top:80px;text-align:left;direction:ltr;clip-path:inset(0 100% 0 0)}
+.nbl.d{top:122px;height:auto;min-height:42px;line-height:1.35;white-space:normal;text-align:center;direction:rtl;font-size:11px;font-weight:900;color:#9b1428;opacity:0;clip-path:none;padding:0 8px}
+.nbov.show-warning .nbl.d{opacity:1;transition:opacity .45s ease}
 .nbov.play .nbl.a{animation:wR 1.1s .7s linear forwards}
 .nbov.play .nbl.b{animation:wL 1s 1.9s linear forwards}
 .nbov.play .nbl.c{animation:wL .7s 3s linear forwards}
@@ -326,6 +335,17 @@ main[hidden]{display:none}
 </section>
 </main>
 
+<div class="rconfirm" id="rconfirm" hidden role="dialog" aria-modal="true" aria-labelledby="rconfirm-title" dir="rtl">
+  <div class="rconfirm-box">
+    <h3 id="rconfirm-title">راجع اليوزر نيم قبل التسجيل</h3>
+    <p>لو اليوزر نيم غير صحيح هتعتبر مستبعد من المسابقة. اتأكد منه كويس قبل ما تكمل.</p>
+    <div class="rconfirm-actions">
+      <button class="btn" id="rback" type="button">ارجع للتحقق</button>
+      <button class="btn primary" id="rcontinue" type="button">كمل تسجيل</button>
+    </div>
+  </div>
+</div>
+
 <div class="nbov" id="nbov" dir="ltr" hidden aria-live="polite">
   <div class="nbscene"><div class="nbbook">
     <div class="nbcover"></div>
@@ -334,6 +354,7 @@ main[hidden]{display:none}
     <div class="nbl a" id="nbn"></div>
     <div class="nbl b" id="nbt"></div>
     <div class="nbl c" id="nbi"></div>
+    <div class="nbl d" id="nbwarn"></div>
     <div class="nbstamp">تم ✓</div>
     <div class="nbflip"></div>
     <div class="nbpen">✒️</div>
@@ -527,7 +548,11 @@ btn.addEventListener("click",()=>{
 
 /* 2) registration form */
 const nameI=$("#rname"),tgI=$("#rtg"),go=$("#rgo"),err=$("#rerr"),ov=$("#nbov"),nbcap=$("#nbcap");
-const resetForm=()=>{$("#rform").hidden=false;$("#rok").hidden=true;nameI.value="";tgI.value="";err.textContent="";go.disabled=false};
+const confirmBox=$("#rconfirm"),backBtn=$("#rback"),continueBtn=$("#rcontinue");
+const BROWSER_REG_KEY="ci_contest_registered_v1";
+const getBrowserRegistration=()=>{try{return localStorage.getItem(BROWSER_REG_KEY)}catch(e){return null}};
+const setBrowserRegistration=tg=>{try{localStorage.setItem(BROWSER_REG_KEY,JSON.stringify({telegram:tg,registeredAt:Date.now()}))}catch(e){}};
+const resetForm=()=>{$("#rform").hidden=false;$("#rok").hidden=true;nameI.value="";tgI.value="";err.textContent="";go.disabled=false;confirmBox.hidden=true};
 addEventListener("hashchange",()=>{if(location.hash==="#register")resetForm()});
 
 /* numeric auto-ID via a counter doc; collections/docs are created automatically on first write */
@@ -547,29 +572,41 @@ async function save(name,tg){
 }
 const timeout=(p,ms)=>Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error("timeout")),ms))]);
 
-/* 3) notebook animation (5 seconds) */
+/* 3) notebook animation: original pen/book animation timings and keyframes are preserved */
 const caps=[[0,"بنفتح الدفتر الكبير 📖"],[1000,"بنكتب اسمك بخط إيدي ✍️"],[2100,"ويوزر التيليجرام كمان 📲"],[3100,"أوبا! القلم هرب 😅"],[3700,"ختم رسمي! دووووم 🔨"],[4400,"تمام يا باشا! اتسجّلت 🎉"]];
 function playBook(name,tg){
-  $("#nbn").textContent=name;$("#nbt").textContent="@"+tg;$("#nbi").textContent="ID: …";
-  ov.hidden=false;ov.classList.remove("play");void ov.offsetWidth;ov.classList.add("play");
+  $("#nbn").textContent=name;$("#nbt").textContent="@"+tg;$("#nbi").textContent="ID: …";$("#nbwarn").textContent="";
+  ov.classList.remove("show-warning","fade-out");ov.hidden=false;ov.classList.remove("play");void ov.offsetWidth;ov.classList.add("play");
   caps.forEach(([t,m])=>setTimeout(()=>{if(!ov.hidden)nbcap.textContent=m},t));
   setTimeout(()=>{if(!ov.hidden)fx(ov,["🎉","⭐","✨","🎊"],10)},4300);
 }
+function closeBook(){ov.classList.add("fade-out");ov.style.transition="opacity .9s ease";ov.style.opacity="0";setTimeout(()=>{ov.hidden=true;ov.classList.remove("play","show-warning","fade-out");ov.style.opacity="";ov.style.transition=""},950)}
 
-go.addEventListener("click",async()=>{
+let pendingRegistration=null;
+go.addEventListener("click",()=>{
   err.textContent="";
   const name=nameI.value.trim(),tg=tgI.value.trim().replace(/^https?:\/\/t\.me\//i,"").replace(/^@+/,"");
   if(name.length<2)return err.textContent="من فضلك اكتب اسمك.";
   if(!/^[A-Za-z0-9_]{5,32}$/.test(tg))return err.textContent="يوزر التيليجرام غير صحيح (5 إلى 32 حرفاً إنجليزياً أو أرقاماً أو _).";
-  go.disabled=true;
+  if(getBrowserRegistration())return err.textContent="تم استخدام هذا المتصفح للتسجيل في المسابقة من قبل. التسجيل متاح مرة واحدة فقط لكل متصفح.";
+  pendingRegistration={name,tg};confirmBox.hidden=false;
+});
+backBtn.addEventListener("click",()=>{confirmBox.hidden=true;tgI.focus()});
+continueBtn.addEventListener("click",async()=>{
+  if(!pendingRegistration)return;
+  const {name,tg}=pendingRegistration;pendingRegistration=null;confirmBox.hidden=true;go.disabled=true;continueBtn.disabled=true;
   let res=null,fail=null;
   const job=timeout(save(name,tg),15000).then(r=>{res=r;if(r&&r.id&&!r.dup)$("#nbi").textContent="ID: #"+r.id}).catch(e=>{fail=e});
   playBook(name,tg);
   await Promise.all([job,sleep(5000)]);
-  ov.hidden=true;ov.classList.remove("play");go.disabled=false;
-  if(fail||!res){err.textContent="تعذّر التسجيل الآن — تأكد من الاتصال ومن قواعد Firestore ثم أعد المحاولة.";console.error(fail);return}
-  if(res.dup){err.textContent="هذا اليوزر مسجّل بالفعل في المسابقة برقم ID: #"+res.id;return}
-  $("#rid").textContent="#"+res.id;$("#rform").hidden=true;$("#rok").hidden=false;
+  if(fail||!res){nbcap.textContent="تعذّر إكمال التسجيل، حاول مرة أخرى";closeBook();err.textContent="تعذّر التسجيل الآن — تأكد من الاتصال ومن قواعد Firestore ثم أعد المحاولة.";console.error(fail);go.disabled=false;continueBtn.disabled=false;return}
+  if(res.dup){nbcap.textContent="هذا اليوزر مسجّل بالفعل — لا يمكن تكرار التسجيل";$("#nbwarn").textContent="اليوزر مسجّل من قبل";ov.classList.add("show-warning");await sleep(5000);closeBook();err.textContent="هذا اليوزر مسجّل بالفعل في المسابقة برقم ID: #"+res.id;go.disabled=false;continueBtn.disabled=false;return}
+  setBrowserRegistration(tg);
+  $("#nbwarn").textContent="تنبيه: التسجيل من متصفح آخر بنفس اليوزر نيم يؤدي إلى الاستبعاد من المسابقة";
+  ov.classList.add("show-warning");nbcap.textContent="تم تسجيلك بنجاح — راجع التنبيه المكتوب في الدفتر";
+  await sleep(5000);
+  closeBook();
+  $("#rid").textContent="#"+res.id;$("#rform").hidden=true;$("#rok").hidden=false;go.disabled=false;continueBtn.disabled=false;
 });
 })();
 
