@@ -189,7 +189,7 @@ main[hidden]{display:none}
 .nbl.a{top:12px;text-align:right;direction:rtl;clip-path:inset(0 0 0 100%)}
 .nbl.b{top:46px;text-align:left;direction:ltr;clip-path:inset(0 100% 0 0)}
 .nbl.c{top:80px;text-align:left;direction:ltr;clip-path:inset(0 100% 0 0)}
-.nbl.d{top:122px;height:auto;min-height:42px;line-height:1.35;white-space:normal;text-align:center;direction:rtl;font-size:11px;font-weight:900;color:#9b1428;opacity:0;clip-path:none;padding:0 8px}
+.nbl.d{left:0;top:112px;width:50%;height:100px;min-height:70px;box-sizing:border-box;line-height:1.5;white-space:normal;text-align:center;direction:rtl;font-size:11.5px;font-weight:900;color:#9b1428;opacity:0;clip-path:none;padding:7px 10px;background:rgba(255,253,245,.96);border:1px solid rgba(200,16,46,.45);border-radius:6px;transform:translateZ(2px)}
 .nbov.show-warning .nbl.d{opacity:1;transition:opacity .45s ease}
 .nbov.play .nbl.a{animation:wR 1.1s .7s linear forwards}
 .nbov.play .nbl.b{animation:wL 1s 1.9s linear forwards}
@@ -550,10 +550,21 @@ btn.addEventListener("click",()=>{
 const nameI=$("#rname"),tgI=$("#rtg"),go=$("#rgo"),err=$("#rerr"),ov=$("#nbov"),nbcap=$("#nbcap");
 const confirmBox=$("#rconfirm"),backBtn=$("#rback"),continueBtn=$("#rcontinue");
 const BROWSER_REG_KEY="ci_contest_registered_v1";
-const getBrowserRegistration=()=>{try{return localStorage.getItem(BROWSER_REG_KEY)}catch(e){return null}};
-const setBrowserRegistration=tg=>{try{localStorage.setItem(BROWSER_REG_KEY,JSON.stringify({telegram:tg,registeredAt:Date.now()}))}catch(e){}};
-const resetForm=()=>{$("#rform").hidden=false;$("#rok").hidden=true;nameI.value="";tgI.value="";err.textContent="";go.disabled=false;confirmBox.hidden=true};
+const getBrowserRegistration=()=>{try{const raw=localStorage.getItem(BROWSER_REG_KEY);if(!raw)return null;try{return JSON.parse(raw)}catch(e){return{telegram:raw}}}catch(e){return null}};
+const setBrowserRegistration=(tg,id,name)=>{try{localStorage.setItem(BROWSER_REG_KEY,JSON.stringify({telegram:tg,id:id||null,name:name||"",registeredAt:Date.now()}))}catch(e){}};
+const showRegistered=(saved)=>{
+  $("#rform").hidden=true;$("#rok").hidden=false;
+  $("#rid").textContent=saved&&saved.id?"#"+saved.id:"تم التسجيل";
+  err.textContent="";confirmBox.hidden=true;go.disabled=false;
+};
+const resetForm=()=>{
+  const saved=getBrowserRegistration();
+  if(saved){showRegistered(saved);return;}
+  $("#rform").hidden=false;$("#rok").hidden=true;nameI.value="";tgI.value="";err.textContent="";go.disabled=false;confirmBox.hidden=true;
+};
 addEventListener("hashchange",()=>{if(location.hash==="#register")resetForm()});
+// Restore the successful registration immediately on refresh, including direct #register loads.
+resetForm();
 
 /* numeric auto-ID via a counter doc; collections/docs are created automatically on first write */
 async function save(name,tg){
@@ -601,12 +612,12 @@ continueBtn.addEventListener("click",async()=>{
   await Promise.all([job,sleep(5000)]);
   if(fail||!res){nbcap.textContent="تعذّر إكمال التسجيل، حاول مرة أخرى";closeBook();err.textContent="تعذّر التسجيل الآن — تأكد من الاتصال ومن قواعد Firestore ثم أعد المحاولة.";console.error(fail);go.disabled=false;continueBtn.disabled=false;return}
   if(res.dup){nbcap.textContent="هذا اليوزر مسجّل بالفعل — لا يمكن تكرار التسجيل";$("#nbwarn").textContent="اليوزر مسجّل من قبل";ov.classList.add("show-warning");await sleep(5000);closeBook();err.textContent="هذا اليوزر مسجّل بالفعل في المسابقة برقم ID: #"+res.id;go.disabled=false;continueBtn.disabled=false;return}
-  setBrowserRegistration(tg);
-  $("#nbwarn").textContent="تنبيه: التسجيل من متصفح آخر بنفس اليوزر نيم يؤدي إلى الاستبعاد من المسابقة";
+  setBrowserRegistration(tg,res.id,name);
+  $("#nbwarn").textContent="لو سجلت من متصفح آخر بنفس اليوزر نيم، هتُستبعد من المسابقة.";
   ov.classList.add("show-warning");nbcap.textContent="تم تسجيلك بنجاح — راجع التنبيه المكتوب في الدفتر";
   await sleep(5000);
   closeBook();
-  $("#rid").textContent="#"+res.id;$("#rform").hidden=true;$("#rok").hidden=false;go.disabled=false;continueBtn.disabled=false;
+  showRegistered({id:res.id,telegram:tg,name});go.disabled=false;continueBtn.disabled=false;
 });
 })();
 
