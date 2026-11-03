@@ -257,6 +257,16 @@ main[hidden]{display:none}
 @keyframes lkFade{from{opacity:0}to{opacity:1}}
 @keyframes lkFadeOut{to{opacity:0}}
 @media(prefers-reduced-motion:reduce){.lkc,.lkm.out .lkc{animation:none}}
+
+/* index cards */
+.icg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.ic{background:#10294a;border:1px solid #24466f;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.icn{display:flex;align-items:center;gap:8px;direction:ltr;font-size:15px;font-weight:700;color:#f8f6f0;white-space:nowrap}
+.icn .mk{font-style:normal;font-weight:900;font-size:22px;line-height:1;color:var(--gold)}
+.icv{display:flex;align-items:baseline;justify-content:space-between;gap:10px;direction:ltr;flex-wrap:wrap}
+.icp{font-size:24px;font-weight:800;color:#fff}
+.icc{font-size:17px;font-weight:800}
+.ist{direction:rtl;font-size:12.5px;font-weight:700;color:#a9bcd4}
 </style>
 <script>try{document.documentElement.dataset.t=localStorage.getItem("ci_theme")||"l"}catch(e){document.documentElement.dataset.t="l"}</script>
 </head>
@@ -502,16 +512,25 @@ const alias={egxshariya33:"egx33shariah",egxshariah:"egx33shariah",shariah:"egx3
 const num=v=>{const x=parseFloat(v);return isFinite(x)?x:null};
 const tmo=(p,ms)=>Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error("timeout")),ms))]);
 CI.ready.then(({fs,fdb})=>{
-  let last=0;
+  let last=0,lastM={},lastLive=false,wasOpen=null;
+  /* EGX session: Sun-Thu 10:00-14:30 Cairo time */
+  const isOpen=()=>{
+    const f=new Intl.DateTimeFormat("en-US",{timeZone:"Africa/Cairo",weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
+    const g=t=>f.find(x=>x.type===t).value;
+    const day=g("weekday"),mins=(+g("hour")%24)*60+ +g("minute");
+    return !["Fri","Sat"].includes(day)&&mins>=600&&mins<870;
+  };
   const draw=(m,live)=>{
-    $("#rows").innerHTML=want.map(([k,t])=>{const d=m[k]||{};
-      return `<div class="row"><b class="en">${t}</b><span class="num">${n(d.p)}</span><span class="num ${cl(d.c)}">${pc(d.c)}</span></div>`}).join("");
-    $("#pill").textContent=live?"EGX · مباشر":"EGX · آخر بيانات محفوظة";
+    lastM=m;lastLive=live;const open=isOpen();
+    $("#rows").innerHTML=`<div class="icg">`+want.map(([k,t])=>{const d=m[k]||{};
+      const mk=d.src==="tv"?"•":d.src==="fs"?".":"";
+      return `<div class="ic"><div class="icn"><span class="en">${t}</span><i class="mk" title="${d.src==="tv"?"TradingView":d.src==="fs"?"Firestore":""}">${mk}</i></div><div class="ist">${open?"يحدث كل 30 دقيقة ، السوق مفتوح 🟢":"السوق مغلق 🔴"}</div><div class="icv"><span class="num icp">${n(d.p)}</span><span class="num icc ${cl(d.c)}">${pc(d.c)}</span></div></div>`}).join("")+`</div>`;
+    $("#pill").textContent=live?(open?"EGX · مباشر":"EGX · آخر إغلاق"):"EGX · آخر بيانات محفوظة";
   };
   /* 1) live: TradingView scanner (direct, then through a CORS proxy) */
   async function live(){
     const out={};const syms=want.map(w=>w[2]);
-    const put=(sym,close,chg)=>{const w=want.find(x=>x[2]===sym);if(w&&num(close)!=null)out[w[0]]={p:num(close),c:num(chg)}};
+    const put=(sym,close,chg)=>{const w=want.find(x=>x[2]===sym);if(w&&num(close)!=null)out[w[0]]={p:num(close),c:num(chg),src:"tv"}};
     try{
       const r=await tmo(fetch("https://scanner.tradingview.com/egypt/scan",{method:"POST",body:JSON.stringify({symbols:{tickers:syms},columns:["close","change"]})}),8000);
       const j=await r.json();(j.data||[]).forEach(x=>put(x.s,x.d[0],x.d[1]));
@@ -531,7 +550,7 @@ CI.ready.then(({fs,fdb})=>{
   async function store(){
     const m={};
     const s=await tmo(fs.getDocs(fs.collection(fdb,"Market_index")),10000);
-    s.forEach(d=>{let k=norm(d.id);k=alias[k]||k;const v=d.data();m[k]={p:num(v.Price1),c:num(v.Price2)}});
+    s.forEach(d=>{let k=norm(d.id);k=alias[k]||k;const v=d.data();m[k]={p:num(v.Price1),c:num(v.Price2),src:"fs"}});
     return m;
   }
   async function refresh(){
@@ -546,9 +565,19 @@ CI.ready.then(({fs,fdb})=>{
     draw(m,isLive);
   }
   refresh();
-  /* auto-update every 30 min, only while the page is open and visible */
-  setInterval(()=>{if(!document.hidden)refresh()},30*60*1000);
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-last>=30*60*1000)refresh()});
+  /* auto-update every 30 min only while the market is open and the page is visible;
+     when it closes: one last fetch, then stop */
+  const check=()=>{
+    if(document.hidden)return;
+    const open=isOpen();
+    if(open&&Date.now()-last>=30*60*1000)refresh();
+    else if(!open&&wasOpen===true)refresh();
+    else if(open!==wasOpen&&Object.keys(lastM).length)draw(lastM,lastLive);
+    wasOpen=open;
+  };
+  wasOpen=isOpen();
+  setInterval(check,60*1000);
+  document.addEventListener("visibilitychange",check);
 
   fs.onSnapshot(fs.doc(fdb,"Analyses","main"),s=>{
     const d=s.data();
