@@ -230,6 +230,33 @@ main[hidden]{display:none}
 @keyframes copyReveal{from{opacity:0;filter:blur(15px);transform:translateY(15px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
 @media(max-width:480px){.contest-notice-panel{min-height:360px;padding:54px 20px 28px}.notice-copy{line-height:1.9}}
 
+
+/* ===== locked contest button (calm red, low glow) ===== */
+.chalo{background:radial-gradient(circle,rgba(190,40,55,.22),rgba(190,40,55,0) 66%)!important;animation:none!important;opacity:.7}
+.cbtn{background:radial-gradient(circle at 32% 24%,#c9626a 0,#a32632 30%,#7a1822 62%,#4f0e15 100%)!important;box-shadow:0 8px 0 #3d0a10,0 16px 22px rgba(0,0,0,.28),0 0 16px 2px rgba(170,35,50,.35),inset 0 -12px 18px rgba(40,0,6,.5),inset 0 8px 14px rgba(255,255,255,.18)!important;text-shadow:0 2px 3px rgba(40,0,6,.7);font-size:16px!important;filter:saturate(.85)}
+.cbtn::before{opacity:.45}
+.cbtn:hover{filter:saturate(.9) brightness(1.04)}
+.cbtn:active{transform:translateY(5px)!important;box-shadow:0 3px 0 #3d0a10,0 8px 12px rgba(0,0,0,.28),0 0 14px 2px rgba(170,35,50,.3),inset 0 -12px 18px rgba(40,0,6,.5)!important}
+.cbtn .gf{font-size:30px}
+.cdown{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;font-weight:800;font-size:14px}
+.cdown .u{display:inline-flex;align-items:baseline;gap:5px}
+.cdown .num{font-size:20px;font-weight:800;color:var(--gold)}
+.cdown .sp{color:var(--mu)}
+/* ===== 3D lock modal ===== */
+.lkm{position:fixed;inset:0;z-index:6000;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(3,10,22,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);perspective:1100px;animation:lkFade .35s ease both}
+.lkm[hidden]{display:none}
+.lkm.out{animation:lkFadeOut .45s ease both}
+.lkc{width:min(100%,400px);padding:34px 26px 28px;text-align:center;color:#f8f6f0;direction:rtl;border:1px solid rgba(218,185,105,.6);border-radius:24px;background:linear-gradient(145deg,rgba(10,29,52,.97),rgba(4,13,28,.98));box-shadow:0 25px 80px rgba(0,0,0,.6),0 0 30px rgba(160,30,45,.18);transform-style:preserve-3d;animation:lkIn .9s cubic-bezier(.2,.8,.2,1) both}
+.lkm.out .lkc{animation:lkOut .45s ease-in both}
+.lkc .ic{font-size:46px;line-height:1.2}
+.lkc h3{font-size:20px;color:#e07a85;margin:8px 0 10px}
+.lkc p{line-height:2;font-weight:700;margin-bottom:22px}
+.lkc .btn{background:#8a1c27;color:#fff;border-color:#b9505a;justify-content:center;min-width:140px}
+@keyframes lkIn{from{opacity:0;transform:rotateY(-180deg) scale(.7)}to{opacity:1;transform:rotateY(0) scale(1)}}
+@keyframes lkOut{to{opacity:0;transform:rotateY(180deg) scale(.7)}}
+@keyframes lkFade{from{opacity:0}to{opacity:1}}
+@keyframes lkFadeOut{to{opacity:0}}
+@media(prefers-reduced-motion:reduce){.lkc,.lkm.out .lkc{animation:none}}
 </style>
 <script>try{document.documentElement.dataset.t=localStorage.getItem("ci_theme")||"l"}catch(e){document.documentElement.dataset.t="l"}</script>
 </head>
@@ -260,11 +287,12 @@ main[hidden]{display:none}
       <div class="chalo"></div>
       <div class="cfloor"></div>
       <div class="cwrap" id="cwrap">
-        <button class="cbtn" id="cbtn" type="button" aria-label="سجل الان في مسابقة سحب على 50 عضو مميز"><span class="gf">🎁</span><span class="cx">سجل الان في مسابقة سحب على 50 عضو مميز</span></button>
+        <button class="cbtn" id="cbtn" type="button" aria-label="انتظر السحب يوم 1 يناير 2027" aria-disabled="true"><span class="gf">🔒</span><span class="cx">انتظر السحب يوم 1 يناير 2027</span></button>
       </div>
     </div>
     <div class="ccap" id="ccap" hidden><b></b><i>10</i></div>
-    <p class="chint" id="chint">اضغط على الزر وجرّب حظك</p>
+    <p class="chint" id="chint">انتظر السحب يوم 1 يناير اول السنة</p>
+    <div class="cdown" id="cdown" dir="rtl" aria-live="off"></div>
   </div>
 </section>
 
@@ -399,6 +427,15 @@ main[hidden]{display:none}
   </div>
 </div>
 
+<div class="lkm" id="lkm" hidden role="dialog" aria-modal="true" aria-label="المسابقة مقفولة">
+  <div class="lkc">
+    <div class="ic">🔒</div>
+    <h3>باب المسابقة مقفول</h3>
+    <p>انتظر السحب يوم 1 يناير 2027<br>وتابع قناتنا على تيليجرام لمعرفة الفائزين.</p>
+    <button class="btn" id="lkok" type="button">حاضر</button>
+  </div>
+</div>
+
 <footer id="ftr"></footer>
 
 <script>
@@ -460,14 +497,58 @@ CI.cards=(coll,el,labels,extra)=>{
 (function(){
 const {esc,$,n,pc,cl}=Object.assign({},CI,{n:CI.n,pc:CI.pc,cl:CI.cl});
 const norm=s=>s.toLowerCase().replace(/\s+/g,"");
-const want=[["egx30","EGX 30"],["egx70ewi","EGX 70 EWI"],["egxshariya33","EGX Shariya 33"]];
+const want=[["egx30","EGX 30","EGX:EGX30"],["egx70ewi","EGX 70 EWI","EGX:EGX70EWI"],["egx100ewi","EGX 100 EWI","EGX:EGX100EWI"],["egx33shariah","EGX 33 Shariah","EGX:SHARIAH"]];
+const alias={egxshariya33:"egx33shariah",egxshariah:"egx33shariah",shariah:"egx33shariah",egx33:"egx33shariah",egx70:"egx70ewi",egx100:"egx100ewi"};
+const num=v=>{const x=parseFloat(v);return isFinite(x)?x:null};
+const tmo=(p,ms)=>Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error("timeout")),ms))]);
 CI.ready.then(({fs,fdb})=>{
-  fs.onSnapshot(fs.collection(fdb,"Market_index"),s=>{
-    const m={};s.forEach(d=>m[norm(d.id)]=d.data());
+  let last=0;
+  const draw=(m,live)=>{
     $("#rows").innerHTML=want.map(([k,t])=>{const d=m[k]||{};
-      return `<div class="row"><b class="en">${t}</b><span class="num">${n(d.Price1)}</span><span class="num ${cl(d.Price2)}">${pc(d.Price2)}</span></div>`}).join("");
-    $("#pill").textContent="EGX · مباشر";
-  },()=>{$("#rows").innerHTML=`<div class="msg">تعذّر قراءة بيانات المؤشرات — تأكد من قواعد Firestore</div>`});
+      return `<div class="row"><b class="en">${t}</b><span class="num">${n(d.p)}</span><span class="num ${cl(d.c)}">${pc(d.c)}</span></div>`}).join("");
+    $("#pill").textContent=live?"EGX · مباشر":"EGX · آخر بيانات محفوظة";
+  };
+  /* 1) live: TradingView scanner (direct, then through a CORS proxy) */
+  async function live(){
+    const out={};const syms=want.map(w=>w[2]);
+    const put=(sym,close,chg)=>{const w=want.find(x=>x[2]===sym);if(w&&num(close)!=null)out[w[0]]={p:num(close),c:num(chg)}};
+    try{
+      const r=await tmo(fetch("https://scanner.tradingview.com/egypt/scan",{method:"POST",body:JSON.stringify({symbols:{tickers:syms},columns:["close","change"]})}),8000);
+      const j=await r.json();(j.data||[]).forEach(x=>put(x.s,x.d[0],x.d[1]));
+    }catch(e){}
+    if(Object.keys(out).length<want.length){
+      await Promise.all(want.filter(w=>!out[w[0]]).map(async w=>{
+        try{
+          const u="https://scanner.tradingview.com/symbol?symbol="+encodeURIComponent(w[2])+"&fields=close,change&no_404=true";
+          const r=await tmo(fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(u)),8000);
+          const j=await r.json();put(w[2],j.close,j.change);
+        }catch(e){}
+      }));
+    }
+    return out;
+  }
+  /* 2) fallback: Firestore Market_index (current path) */
+  async function store(){
+    const m={};
+    const s=await tmo(fs.getDocs(fs.collection(fdb,"Market_index")),10000);
+    s.forEach(d=>{let k=norm(d.id);k=alias[k]||k;const v=d.data();m[k]={p:num(v.Price1),c:num(v.Price2)}});
+    return m;
+  }
+  async function refresh(){
+    last=Date.now();
+    let m={},isLive=false;
+    try{m=await live();isLive=Object.keys(m).length>0}catch(e){}
+    if(Object.keys(m).length<want.length){
+      try{const f=await store();want.forEach(([k])=>{if(!m[k]&&f[k])m[k]=f[k]})}catch(e){
+        if(!Object.keys(m).length){$("#rows").innerHTML=`<div class="msg">تعذّر قراءة بيانات المؤشرات</div>`;return}
+      }
+    }
+    draw(m,isLive);
+  }
+  refresh();
+  /* auto-update every 30 min, only while the page is open and visible */
+  setInterval(()=>{if(!document.hidden)refresh()},30*60*1000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-last>=30*60*1000)refresh()});
 
   fs.onSnapshot(fs.doc(fdb,"Analyses","main"),s=>{
     const d=s.data();
@@ -565,23 +646,31 @@ const {$}=CI;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const fx=(box,list,n)=>{for(let i=0;i<n;i++){const e=document.createElement("span");e.className="fx";e.textContent=list[Math.floor(Math.random()*list.length)];e.style.left=(5+Math.random()*85)+"%";e.style.animationDelay=(Math.random()*.3)+"s";box.appendChild(e);setTimeout(()=>e.remove(),1900)}};
 
-/* 1) the red button: 10 seconds of chaos, then the registration page */
-const wrap=$("#cwrap"),btn=$("#cbtn"),cap=$("#ccap"),stage=$("#cstage"),hint=$("#chint");
-const phases=[[0,"k1","آي آي آي! بالراحة عليا 😖"],[2,"k2","أنا بطير يا ماما 🚀"],[4,"k3","دوّختني يا جدع 🤪"],[6,"k4","هتنفخني وأفرقع 🎈😳"],[8,"k5","خلاص خلاص.. هفتحلك الصفحة 🏃💨"]];
-let busy=false;
-btn.addEventListener("click",()=>{
-  if(busy)return;busy=true;btn.disabled=true;hint.hidden=true;cap.hidden=false;
-  const t0=Date.now();let idx=-1;
-  const iv=setInterval(()=>{
-    const s=(Date.now()-t0)/1000;
-    let i=0;phases.forEach((p,k)=>{if(s>=p[0])i=k});
-    if(i!==idx){idx=i;wrap.className="cwrap "+phases[i][1];cap.querySelector("b").textContent=phases[i][2]}
-    cap.querySelector("i").textContent=Math.max(0,Math.ceil(10-s));
-    if(s>=10){clearInterval(iv);clearInterval(fv);end()}
-  },100);
-  const fv=setInterval(()=>fx(stage,["💥","😵","🤪","⭐","🎉","😂","🌀","🔥"],1),230);
-  function end(){wrap.className="cwrap";btn.disabled=false;cap.hidden=true;hint.hidden=false;busy=false;location.hash="#register"}
-});
+/* 1) locked red button: opens a 3D flip modal over a blurred backdrop */
+const btn=$("#cbtn"),lkm=$("#lkm"),lkok=$("#lkok");
+btn.addEventListener("click",()=>{lkm.classList.remove("out");lkm.hidden=false;document.body.style.overflow="hidden";lkok.focus()});
+const closeLk=()=>{if(lkm.hidden||lkm.classList.contains("out"))return;lkm.classList.add("out");setTimeout(()=>{lkm.hidden=true;lkm.classList.remove("out");document.body.style.overflow=""},450)};
+lkok.addEventListener("click",closeLk);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLk()});
+
+/* countdown to 1 Jan 2027 (Cairo, UTC+2) */
+(function(){
+  const T=new Date("2027-01-01T00:00:00+02:00"),box=$("#cdown"),p2=x=>String(x).padStart(2,"0");
+  const addM=(d,m)=>{const x=new Date(d.getFullYear(),d.getMonth()+m,1,d.getHours(),d.getMinutes(),d.getSeconds());const dim=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(d.getDate(),dim));return x};
+  function tick(){
+    const now=new Date();let y=0,mo=0,w=0,d=0,h=0;
+    if(now<T){
+      let m=(T.getFullYear()-now.getFullYear())*12+(T.getMonth()-now.getMonth());
+      while(m>0&&addM(now,m)>T)m--;
+      y=Math.floor(m/12);mo=m%12;
+      let rem=T-addM(now,m);const H=36e5,D=24*H;
+      d=Math.floor(rem/D);rem-=d*D;h=Math.floor(rem/H);w=Math.floor(d/7);d=d%7;
+    }
+    const u=(v,l)=>`<span class="u"><span class="num">${p2(v)}</span><span>${l}</span></span>`,sp='<span class="sp">:</span>';
+    box.innerHTML=[u(h,"ساعة"),u(d,"يوم"),u(w,"أسبوع"),u(mo,"شهر"),u(y,"سنة")].join(sp);
+  }
+  tick();setInterval(tick,10000);
+})();
 
 /* 2) registration form */
 const nameI=$("#rname"),tgI=$("#rtg"),go=$("#rgo"),err=$("#rerr"),ov=$("#nbov"),nbcap=$("#nbcap");
