@@ -297,11 +297,11 @@ main[hidden]{display:none}
       <div class="chalo"></div>
       <div class="cfloor"></div>
       <div class="cwrap" id="cwrap">
-        <button class="cbtn" id="cbtn" type="button" aria-label="انتظر السحب يوم 1 يناير 2027" aria-disabled="true"><span class="gf">🔒</span><span class="cx">انتظر السحب يوم 1 يناير 2027</span></button>
+        <button class="cbtn" id="cbtn" type="button" aria-label="انتظر السحب يوم 1 ديسمبر 2026" aria-disabled="true"><span class="gf">🔒</span><span class="cx">انتظر السحب يوم 1 ديسمبر 2026</span></button>
       </div>
     </div>
     <div class="ccap" id="ccap" hidden><b></b><i>10</i></div>
-    <p class="chint" id="chint">انتظر السحب يوم 1 يناير اول السنة</p>
+    <p class="chint" id="chint">انتظر السحب يوم 1 ديسمبر 2026</p>
     <div class="cdown" id="cdown" dir="rtl" aria-live="off"></div>
   </div>
 </section>
@@ -329,6 +329,11 @@ main[hidden]{display:none}
 <main data-view="technical" hidden>
 <section style="border-top:none">
   <div class="wrap">
+    <div class="sh">
+      <div><div class="eb">LIVE STOCKS</div><h2>أسهم مختارة</h2></div>
+      <span class="pill" id="spill">EGX</span>
+    </div>
+    <div id="srows" style="margin-bottom:34px"><div class="msg">جارٍ التحميل…</div></div>
     <div class="sh">
       <div><div class="eb">TECHNICAL ANALYSIS</div><h2>التحليل الفني</h2></div>
       <span class="cnt" id="n-tcards"></span>
@@ -441,7 +446,7 @@ main[hidden]{display:none}
   <div class="lkc">
     <div class="ic">🔒</div>
     <h3>باب المسابقة مقفول</h3>
-    <p>انتظر السحب يوم 1 يناير 2027<br>وتابع قناتنا على تيليجرام لمعرفة الفائزين.</p>
+    <p>انتظر السحب يوم 1 ديسمبر 2026<br>وتابع قناتنا على تيليجرام لمعرفة الفائزين.</p>
     <button class="btn" id="lkok" type="button">حاضر</button>
   </div>
 </div>
@@ -478,7 +483,7 @@ mb.onclick=e=>{e.stopPropagation();toggle(menu.hidden)};
 menu.onclick=e=>{e.stopPropagation();if(e.target.closest("a"))toggle(false)};
 document.addEventListener("click",()=>toggle(false));
 th.onclick=()=>{const d=!dark();root.dataset.t=d?"d":"l";try{localStorage.setItem("ci_theme",d?"d":"l")}catch(e){}label()};
-$("#ftr").innerHTML=`<div class="wrap"><p>جميع الحقوق محفوظة لموقع مستثمرين مصريين 2024 - 2026 ©</p><p class="dis">تنويه: المحتوى لأغراض تعليمية ونقاشية فقط ولا يُعد توصية شراء أو بيع، والاستثمار في الأسهم ينطوي على مخاطر.</p></div>`;
+$("#ftr").innerHTML=`<div class="wrap"><p>جميع الحقوق محفوظة لموقع مستثمرين مصريين 2024 - 2027 ©</p><p class="dis">تنويه: المحتوى لأغراض تعليمية ونقاشية فقط ولا يُعد توصية شراء أو بيع، والاستثمار في الأسهم ينطوي على مخاطر.</p></div>`;
 
 /* firebase (loaded on demand, works from file:// and hosting) */
 const B="https://www.gstatic.com/firebasejs/10.12.2/";
@@ -507,8 +512,8 @@ CI.cards=(coll,el,labels,extra)=>{
 (function(){
 const {esc,$,n,pc,cl}=Object.assign({},CI,{n:CI.n,pc:CI.pc,cl:CI.cl});
 const norm=s=>s.toLowerCase().replace(/\s+/g,"");
-const want=[["egx30","EGX 30","EGX:EGX30"],["egx70ewi","EGX 70 EWI","EGX:EGX70EWI"],["egx100ewi","EGX 100 EWI","EGX:EGX100EWI"],["egx33shariah","EGX 33 Shariah","EGX:SHARIAH"]];
-const alias={egxshariya33:"egx33shariah",egxshariah:"egx33shariah",shariah:"egx33shariah",egx33:"egx33shariah",egx70:"egx70ewi",egx100:"egx100ewi"};
+const want=[["egx30","EGX 30","EGX:EGX30"],["egx70ewi","EGX 70 EWI","EGX:EGX70EWI"],["egx100ewi","EGX 100 EWI","EGX:EGX100EWI"]];
+const alias={egx70:"egx70ewi",egx100:"egx100ewi"};
 const num=v=>{const x=parseFloat(v);return isFinite(x)?x:null};
 const tmo=(p,ms)=>Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error("timeout")),ms))]);
 CI.ready.then(({fs,fdb})=>{
@@ -665,6 +670,81 @@ CI.ready.then(r=>{
 });
 })();
 
+/* ===== technical page: selected stocks (same mechanism as the indices) ===== */
+(function(){
+const {$,n,pc,cl}=CI;
+const stocks=[["etel","المصرية للاتصالات","ETEL","EGX:ETEL"],["tmgh","طلعت مصطفى","TMGH","EGX:TMGH"],["efid","إيديتا للصناعات الغذائية","EFID","EGX:EFID"],["comi","البنك التجاري الدولي CIB","COMI","EGX:COMI"],["jufo","جهينة للصناعات الغذائية","JUFO","EGX:JUFO"]];
+const num=v=>{const x=parseFloat(v);return isFinite(x)?x:null};
+const tmo=(p,ms)=>Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error("timeout")),ms))]);
+const isOpen=()=>{
+  const f=new Intl.DateTimeFormat("en-US",{timeZone:"Africa/Cairo",weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
+  const g=t=>f.find(x=>x.type===t).value;
+  const day=g("weekday"),mins=(+g("hour")%24)*60+ +g("minute");
+  return !["Fri","Sat"].includes(day)&&mins>=600&&mins<870;
+};
+CI.ready.then(({fs,fdb})=>{
+  let last=0,lastM={},lastLive=false,wasOpen=null;
+  const draw=(m,live)=>{
+    lastM=m;lastLive=live;const open=isOpen();
+    $("#srows").innerHTML=`<div class="icg">`+stocks.map(([k,name,code])=>{const d=m[k]||{};
+      const mk=d.src==="tv"?"•":d.src==="fs"?".":"";
+      return `<div class="ic"><div class="icn" style="direction:rtl"><span>${name}</span><i class="mk" title="${d.src==="tv"?"TradingView":d.src==="fs"?"Firestore":""}">${mk}</i></div><div class="ist" style="direction:ltr;text-align:right">${code}</div><div class="icv"><span class="num icp">${n(d.p)}</span><span class="num icc ${cl(d.c)}">${pc(d.c)}</span></div><div class="ist">${open?"يحدث كل 30 دقيقة ، السوق مفتوح 🟢":"السوق مغلق 🔴"}</div></div>`}).join("")+`</div>`;
+    $("#spill").textContent=live?(open?"EGX · مباشر":"EGX · آخر إغلاق"):"EGX · آخر بيانات محفوظة";
+  };
+  async function live(){
+    const out={};
+    const put=(sym,close,chg)=>{const w=stocks.find(x=>x[3]===sym);if(w&&num(close)!=null)out[w[0]]={p:num(close),c:num(chg),src:"tv"}};
+    try{
+      const r=await tmo(fetch("https://scanner.tradingview.com/egypt/scan",{method:"POST",body:JSON.stringify({symbols:{tickers:stocks.map(w=>w[3])},columns:["close","change"]})}),8000);
+      const j=await r.json();(j.data||[]).forEach(x=>put(x.s,x.d[0],x.d[1]));
+    }catch(e){}
+    if(Object.keys(out).length<stocks.length){
+      await Promise.all(stocks.filter(w=>!out[w[0]]).map(async w=>{
+        try{
+          const u="https://scanner.tradingview.com/symbol?symbol="+encodeURIComponent(w[3])+"&fields=close,change&no_404=true";
+          const r=await tmo(fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(u)),8000);
+          const j=await r.json();put(w[3],j.close,j.change);
+        }catch(e){}
+      }));
+    }
+    return out;
+  }
+  /* fallback: Firestore (docs named by ticker, fields Price1 / Price2) */
+  async function store(){
+    const m={};
+    for(const coll of ["Market_stocks","Market_index"]){
+      try{
+        const s=await tmo(fs.getDocs(fs.collection(fdb,coll)),10000);
+        s.forEach(d=>{const k=d.id.toLowerCase().replace(/\s+/g,"");if(m[k])return;const v=d.data();if(num(v.Price1)!=null)m[k]={p:num(v.Price1),c:num(v.Price2),src:"fs"}});
+      }catch(e){}
+    }
+    return m;
+  }
+  async function refresh(){
+    last=Date.now();
+    let m={},isLive=false;
+    try{m=await live();isLive=Object.keys(m).length>0}catch(e){}
+    if(Object.keys(m).length<stocks.length){
+      const f=await store();stocks.forEach(([k])=>{if(!m[k]&&f[k])m[k]=f[k]});
+    }
+    if(!Object.keys(m).length){$("#srows").innerHTML=`<div class="msg">تعذّر قراءة بيانات الأسهم</div>`;return}
+    draw(m,isLive);
+  }
+  refresh();
+  const check=()=>{
+    if(document.hidden)return;
+    const open=isOpen();
+    if(open&&Date.now()-last>=30*60*1000)refresh();
+    else if(!open&&wasOpen===true)refresh();
+    else if(open!==wasOpen&&Object.keys(lastM).length)draw(lastM,lastLive);
+    wasOpen=open;
+  };
+  wasOpen=isOpen();
+  setInterval(check,60*1000);
+  document.addEventListener("visibilitychange",check);
+});
+})();
+
 /* ===== analysis cards ===== */
 CI.cards("Basic","fcards",["السعر الحالي","السعر العادل"],false);
 CI.cards("posts","tcards",["السعر الحالي","السعر المستهدف"],true);
@@ -682,9 +762,9 @@ const closeLk=()=>{if(lkm.hidden||lkm.classList.contains("out"))return;lkm.class
 lkok.addEventListener("click",closeLk);
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLk()});
 
-/* countdown to 1 Jan 2027 (Cairo, UTC+2) */
+/* countdown to 1 Dec 2026 (Cairo, UTC+2) */
 (function(){
-  const T=new Date("2027-01-01T00:00:00+02:00"),box=$("#cdown"),p2=x=>String(x).padStart(2,"0");
+  const T=new Date("2026-12-01T00:00:00+02:00"),box=$("#cdown"),p2=x=>String(x).padStart(2,"0");
   const addM=(d,m)=>{const x=new Date(d.getFullYear(),d.getMonth()+m,1,d.getHours(),d.getMinutes(),d.getSeconds());const dim=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(d.getDate(),dim));return x};
   function tick(){
     const now=new Date();let y=0,mo=0,w=0,d=0,h=0;
