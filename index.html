@@ -268,6 +268,11 @@ main[hidden]{display:none}
 .icp{font-size:24px;font-weight:800;color:#fff}
 .icc{font-size:17px;font-weight:800}
 .ist{direction:rtl;font-size:12.5px;font-weight:700;color:#a9bcd4}
+.snapgo{padding:0 30px 26px;position:relative}
+.snapgo .btn{width:100%;justify-content:center}
+@media(max-width:640px){.snapgo{padding-inline:22px}}
+.tvw{height:calc(100vh - 190px);min-height:540px;border-radius:16px;overflow:hidden;background:#0F0F0F;border:1px solid #24466f}
+.tvw .tradingview-widget-container,.tvw .tradingview-widget-container__widget{height:100%;width:100%}
 </style>
 <script>try{document.documentElement.dataset.t=localStorage.getItem("ci_theme")||"l"}catch(e){document.documentElement.dataset.t="l"}</script>
 </head>
@@ -288,6 +293,7 @@ main[hidden]{display:none}
     <aside class="snap">
       <div class="snap-h"><h3>مؤشرات البورصة المصرية</h3><span class="pill" id="pill">EGX</span></div>
       <div class="rows" id="rows"><div class="msg">جارٍ التحميل…</div></div>
+      <div class="snapgo"><a class="btn o" href="#chart">📈 الذهاب إلى شارت التحليل</a></div>
     </aside>
   </div>
 </section>
@@ -340,6 +346,18 @@ main[hidden]{display:none}
       <span class="cnt" id="n-tcards"></span>
     </div>
     <div class="cards" id="tcards"><div class="empty">جارٍ التحميل…</div></div>
+  </div>
+</section>
+</main>
+
+<main data-view="chart" hidden>
+<section style="border-top:none">
+  <div class="wrap">
+    <div class="sh">
+      <div><div class="eb">ANALYSIS CHART</div><h2>شارت التحليل</h2></div>
+      <span class="pill">EGX</span>
+    </div>
+    <div class="tvw" id="tvw"><div class="msg" style="padding:24px;color:#a9bcd4">جارٍ تحميل الشارت…</div></div>
   </div>
 </section>
 </main>
@@ -474,7 +492,7 @@ CI.pc=x=>x==null||x===""||isNaN(x)?"—":(x>0?"+":x<0?"−":"")+Math.abs(x).toFi
 CI.cl=x=>x>0?"up":x<0?"down":"";
 
 /* header, menu, footer */
-const items=[["الرئيسية","#home","home"],["التحليل الأساسي","#fundamental","fundamental"],["التحليل الفني","#technical","technical"],["دقة التحليلات","#accuracy","accuracy"],["المنتدى العام","#forum","forum"],["من نحن","#about","about"]];
+const items=[["الرئيسية","#home","home"],["التحليل الأساسي","#fundamental","fundamental"],["التحليل الفني","#technical","technical"],["شارت التحليل","#chart","chart"],["دقة التحليلات","#accuracy","accuracy"],["المنتدى العام","#forum","forum"],["من نحن","#about","about"]];
 $("#hdr").innerHTML=`<div class="hi"><a class="brand" href="#home"><img src="${LOGO}" alt="شعار مستثمرين مصريين"><span class="bw"><b>مستثمرين مصريين</b><span>EGYPTIAN INVESTORS</span></span></a><button class="burger" id="mb" type="button" aria-label="القائمة" aria-expanded="false"><i></i><i></i><i></i></button></div><nav id="menu" hidden><div class="mi">${items.map(([t,u,k])=>`<a href="${u}" data-k="${k}">${t}</a>`).join("")}<button type="button" id="th"></button></div></nav>`;
 const mb=$("#mb"),menu=$("#menu"),th=$("#th");
 const label=()=>th.innerHTML=`تغيير الثيم <small>${dark()?"داكن":"أبيض"}</small>`;
@@ -887,9 +905,20 @@ continueBtn.addEventListener("click",async()=>{
 /* ===== page router (hash based) ===== */
 
 (function(){
-const VIEWS=["home","fundamental","technical","forum","about","register"];
+const VIEWS=["home","fundamental","technical","chart","forum","about","register"];
 const ALIAS={accuracy:"home",contact:"about"};
-const TITLES={home:"الرئيسية",fundamental:"التحليل الأساسي",technical:"التحليل الفني",forum:"المنتدى العام",about:"من نحن",register:"التسجيل في المسابقة"};
+const TITLES={home:"الرئيسية",fundamental:"التحليل الأساسي",technical:"التحليل الفني",chart:"شارت التحليل",forum:"المنتدى العام",about:"من نحن",register:"التسجيل في المسابقة"};
+let chartDone=false;
+function loadChart(){
+  if(chartDone)return;chartDone=true;
+  const box=document.getElementById("tvw");
+  box.innerHTML='<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
+  const sc=document.createElement("script");
+  sc.type="text/javascript";sc.async=true;
+  sc.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+  sc.textContent=JSON.stringify({lineWidth:2,lineType:0,chartType:"area",fontColor:"rgb(106, 109, 120)",gridLineColor:"rgba(242, 242, 242, 0.06)",volumeUpColor:"rgba(34, 171, 148, 0.5)",volumeDownColor:"rgba(247, 82, 95, 0.5)",backgroundColor:"#0F0F0F",widgetFontColor:"#DBDBDB",upColor:"#22ab94",downColor:"#f7525f",borderUpColor:"#22ab94",borderDownColor:"#f7525f",wickUpColor:"#22ab94",wickDownColor:"#f7525f",colorTheme:"dark",isTransparent:false,locale:"en",chartOnly:false,scalePosition:"right",scaleMode:"Normal",fontFamily:"-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",valuesTracking:"1",changeMode:"price-and-percent",symbols:[["EGX:ETEL|1D"],["EGX:COMI|1D"],["EGX:EFID|1D"],["EGX:JUFO|1D"],["EGX:TMGH|1D"],["EGX:EGX30|1D"],["EGX:EGX70EWI|1D"],["EGX:EGX100EWI|1D"],["EGX:SHARIAH|1D"]],dateRanges:["1d|1","1m|30","3m|60","12m|1D","60m|1W","all|1M"],fontSize:"10",headerFontSize:"medium",autosize:true,width:"100%",height:"100%",noTimeScale:false,hideDateRanges:false,hideMarketStatus:false,hideSymbolLogo:false});
+  box.firstChild.appendChild(sc);
+}
 function route(){
   const h=decodeURIComponent(location.hash.slice(1)).replace(/^\//,"")||"home";
   const v=VIEWS.includes(h)?h:(ALIAS[h]||"home");
@@ -897,6 +926,7 @@ function route(){
   const cur=VIEWS.includes(h)?h:(ALIAS[h]?h:"home");
   document.querySelectorAll("#menu a[data-k]").forEach(a=>a.classList.toggle("on",a.dataset.k===cur));
   document.title="مستثمرين مصريين — "+TITLES[v];
+  if(v==="chart")loadChart();
   const t=ALIAS[h]&&document.getElementById(h);
   if(t)t.scrollIntoView();else window.scrollTo(0,0);
 }
