@@ -273,6 +273,20 @@ main[hidden]{display:none}
 @media(max-width:640px){.snapgo{padding-inline:22px}}
 .tvw{height:calc(100vh - 190px);min-height:540px;border-radius:16px;overflow:hidden;background:#0F0F0F;border:1px solid #24466f}
 .tvw .tradingview-widget-container,.tvw .tradingview-widget-container__widget{height:100%;width:100%}
+
+.snapcol{min-width:0}
+.outbtns{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.outbtns .btn{width:100%;justify-content:center}
+.lvb{width:100%;justify-content:center;text-align:center;padding:9px 10px;font-size:12.5px;line-height:1.6;border-radius:10px;margin-top:2px;direction:rtl}
+.lvh{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.lrn{max-width:820px}
+.lrn .soon{background:var(--sf);border:1px solid var(--gold);border-radius:20px;padding:22px 26px;font:700 19px/1.9 var(--head);color:var(--fg);margin-bottom:22px;text-align:center}
+.lrn .cap{font:700 16px var(--head);color:var(--mu);margin:0 0 14px}
+.lrn ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:l}
+.lrn li{counter-increment:l;display:flex;align-items:center;gap:14px;background:var(--sf);border:1px solid var(--dv);border-radius:16px;padding:14px 18px;font:700 15.5px/1.7 var(--head);color:var(--fg)}
+.lrn li::before{content:counter(l);flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--btn);color:#fff;font:700 14px var(--head)}
+.lrn li.key{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.lrn li .imp{margin-inline-start:auto;flex:none;font:800 12px var(--head);padding:4px 12px;border-radius:999px;background:var(--gold);color:#071d3a}
 </style>
 <script>try{document.documentElement.dataset.t=localStorage.getItem("ci_theme")||"l"}catch(e){document.documentElement.dataset.t="l"}</script>
 </head>
@@ -290,11 +304,13 @@ main[hidden]{display:none}
       <p>منصة عربية للتحليل الأساسي والفني لسوق الأسهم المصري، يقودها تيم التحليل بمشاركة مجتمع من المستثمرين الجادين.</p>
       <div class="cta"><a class="btn" href="#fundamental">التحليل الأساسي</a><a class="btn o" href="#technical">التحليل الفني</a></div>
     </div>
+    <div class="snapcol">
     <aside class="snap">
       <div class="snap-h"><h3>مؤشرات البورصة المصرية</h3><span class="pill" id="pill">EGX</span></div>
       <div class="rows" id="rows"><div class="msg">جارٍ التحميل…</div></div>
-      <div class="snapgo"><a class="btn o" href="#chart">📈 الذهاب إلى شارت التحليل</a></div>
     </aside>
+    <div class="outbtns"><a class="btn" href="#learning">🎓 التعلم _ Learning</a><a class="btn o" href="#chart">📈 الذهاب إلى شارت المتابعة لاسهم مختارة</a></div>
+    </div>
   </div>
 </section>
 
@@ -354,10 +370,50 @@ main[hidden]{display:none}
 <section style="border-top:none">
   <div class="wrap">
     <div class="sh">
-      <div><div class="eb">ANALYSIS CHART</div><h2>شارت التحليل</h2></div>
+      <div><div class="eb">ANALYSIS CHART</div><h2>شارت المتابعة لاسهم مختارة</h2></div>
       <span class="pill">EGX</span>
     </div>
     <div class="tvw" id="tvw"><div class="msg" style="padding:24px;color:#a9bcd4">جارٍ تحميل الشارت…</div></div>
+  </div>
+</section>
+</main>
+
+<main data-view="live" hidden>
+<section style="border-top:none">
+  <div class="wrap">
+    <div class="sh">
+      <div><div class="eb">LIVE INDEX</div><h2 id="lvt">المؤشر مباشر</h2></div>
+      <span class="pill">TradingView</span>
+    </div>
+    <div class="lvh"><a class="btn o" href="#home">← الرجوع للرئيسية</a></div>
+    <div class="tvw" id="lvw"><div class="msg" style="padding:24px;color:#a9bcd4">جارٍ تحميل الشارت…</div></div>
+  </div>
+</section>
+</main>
+
+<main data-view="learning" hidden>
+<section style="border-top:none">
+  <div class="wrap lrn">
+    <div class="sh"><div><div class="eb">LEARNING</div><h2>التعلم _ Learning</h2></div></div>
+    <div class="soon">جاري العمل على إنشاء كورس مجاني بالكامل</div>
+    <p class="cap">الموجود في الكورس :</p>
+    <ol>
+      <li>أساسات الاستثمار</li>
+      <li>أساسات التداول</li>
+      <li>ما الفرق بين التداول والاستثمار</li>
+      <li>تعلم بعض المصطلحات</li>
+      <li>تعلم التحليل الأساسي</li>
+      <li>تعلم مدارس التحليل الفني</li>
+      <li>تعلم المؤشرات التحليلية</li>
+      <li>تعلم قراءة الشارت</li>
+      <li>تعلم الترند الحي</li>
+      <li>تعلم رسم الدعوم والمقاومات</li>
+      <li>تحديد مناطق الدخول والخروج</li>
+      <li>تعلم نسبة المخاطرة للعائد</li>
+      <li>تعلم نسب توزيع المحفظة الاستثمارية</li>
+      <li>تعلم صياغة مقال استثماري</li>
+      <li class="key">إدارة المخاطر<span class="imp">مهم</span></li>
+    </ol>
   </div>
 </section>
 </main>
@@ -492,7 +548,7 @@ CI.pc=x=>x==null||x===""||isNaN(x)?"—":(x>0?"+":x<0?"−":"")+Math.abs(x).toFi
 CI.cl=x=>x>0?"up":x<0?"down":"";
 
 /* header, menu, footer */
-const items=[["الرئيسية","#home","home"],["التحليل الأساسي","#fundamental","fundamental"],["التحليل الفني","#technical","technical"],["شارت التحليل","#chart","chart"],["دقة التحليلات","#accuracy","accuracy"],["المنتدى العام","#forum","forum"],["من نحن","#about","about"]];
+const items=[["الرئيسية","#home","home"],["التحليل الأساسي","#fundamental","fundamental"],["التحليل الفني","#technical","technical"],["شارت المتابعة لاسهم مختارة","#chart","chart"],["التعلم _ Learning","#learning","learning"],["دقة التحليلات","#accuracy","accuracy"],["المنتدى العام","#forum","forum"],["من نحن","#about","about"]];
 $("#hdr").innerHTML=`<div class="hi"><a class="brand" href="#home"><img src="${LOGO}" alt="شعار مستثمرين مصريين"><span class="bw"><b>مستثمرين مصريين</b><span>EGYPTIAN INVESTORS</span></span></a><button class="burger" id="mb" type="button" aria-label="القائمة" aria-expanded="false"><i></i><i></i><i></i></button></div><nav id="menu" hidden><div class="mi">${items.map(([t,u,k])=>`<a href="${u}" data-k="${k}">${t}</a>`).join("")}<button type="button" id="th"></button></div></nav>`;
 const mb=$("#mb"),menu=$("#menu"),th=$("#th");
 const label=()=>th.innerHTML=`تغيير الثيم <small>${dark()?"داكن":"أبيض"}</small>`;
@@ -548,7 +604,7 @@ CI.ready.then(({fs,fdb})=>{
     lastM=m;lastLive=live;const open=isOpen();
     $("#rows").innerHTML=`<div class="icg">`+want.map(([k,t])=>{const d=m[k]||{};
       const mk=d.src==="tv"?"•":d.src==="fs"?".":"";
-      return `<div class="ic"><div class="icn"><span class="en">${t}</span><i class="mk" title="${d.src==="tv"?"TradingView":d.src==="fs"?"Firestore":""}">${mk}</i></div><div class="ist">${open?"يحدث كل 30 دقيقة ، السوق مفتوح 🟢":"السوق مغلق 🔴"}</div><div class="icv"><span class="num icp">${n(d.p)}</span><span class="num icc ${cl(d.c)}">${pc(d.c)}</span></div></div>`}).join("")+`</div>`;
+      return `<div class="ic"><div class="icn"><span class="en">${t}</span><i class="mk" title="${d.src==="tv"?"TradingView":d.src==="fs"?"Firestore":""}">${mk}</i></div><div class="ist">${open?"يحدث كل 30 دقيقة ، السوق مفتوح 🟢":"السوق مغلق 🔴"}</div><div class="icv"><span class="num icp">${n(d.p)}</span><span class="num icc ${cl(d.c)}">${pc(d.c)}</span></div><a class="btn o lvb" href="#live-${k}">عرض المؤشر مباشر الان بدل الانتظار 30 دقيقة</a></div>`}).join("")+`</div>`;
     $("#pill").textContent=live?(open?"EGX · مباشر":"EGX · آخر إغلاق"):"EGX · آخر بيانات محفوظة";
   };
   /* 1) live: TradingView scanner (direct, then through a CORS proxy) */
@@ -905,28 +961,39 @@ continueBtn.addEventListener("click",async()=>{
 /* ===== page router (hash based) ===== */
 
 (function(){
-const VIEWS=["home","fundamental","technical","chart","forum","about","register"];
+const VIEWS=["home","fundamental","technical","chart","learning","forum","about","register"];
 const ALIAS={accuracy:"home",contact:"about"};
-const TITLES={home:"الرئيسية",fundamental:"التحليل الأساسي",technical:"التحليل الفني",chart:"شارت التحليل",forum:"المنتدى العام",about:"من نحن",register:"التسجيل في المسابقة"};
+const TITLES={home:"الرئيسية",fundamental:"التحليل الأساسي",technical:"التحليل الفني",chart:"شارت المتابعة لاسهم مختارة",learning:"التعلم _ Learning",live:"عرض المؤشر مباشر",forum:"المنتدى العام",about:"من نحن",register:"التسجيل في المسابقة"};
 let chartDone=false;
-function loadChart(){
-  if(chartDone)return;chartDone=true;
-  const box=document.getElementById("tvw");
+const LIVE={egx30:["EGX 30","EGX:EGX30"],egx70ewi:["EGX 70 EWI","EGX:EGX70EWI"],egx100ewi:["EGX 100 EWI","EGX:EGX100EWI"]};
+function tv(box,symbols){
   box.innerHTML='<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
   const sc=document.createElement("script");
   sc.type="text/javascript";sc.async=true;
   sc.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-  sc.textContent=JSON.stringify({lineWidth:2,lineType:0,chartType:"area",fontColor:"rgb(106, 109, 120)",gridLineColor:"rgba(242, 242, 242, 0.06)",volumeUpColor:"rgba(34, 171, 148, 0.5)",volumeDownColor:"rgba(247, 82, 95, 0.5)",backgroundColor:"#0F0F0F",widgetFontColor:"#DBDBDB",upColor:"#22ab94",downColor:"#f7525f",borderUpColor:"#22ab94",borderDownColor:"#f7525f",wickUpColor:"#22ab94",wickDownColor:"#f7525f",colorTheme:"dark",isTransparent:false,locale:"en",chartOnly:false,scalePosition:"right",scaleMode:"Normal",fontFamily:"-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",valuesTracking:"1",changeMode:"price-and-percent",symbols:[["EGX:ETEL|1D"],["EGX:COMI|1D"],["EGX:EFID|1D"],["EGX:JUFO|1D"],["EGX:TMGH|1D"],["EGX:EGX30|1D"],["EGX:EGX70EWI|1D"],["EGX:EGX100EWI|1D"],["EGX:SHARIAH|1D"]],dateRanges:["1d|1","1m|30","3m|60","12m|1D","60m|1W","all|1M"],fontSize:"10",headerFontSize:"medium",autosize:true,width:"100%",height:"100%",noTimeScale:false,hideDateRanges:false,hideMarketStatus:false,hideSymbolLogo:false});
+  sc.textContent=JSON.stringify({lineWidth:2,lineType:0,chartType:"area",fontColor:"rgb(106, 109, 120)",gridLineColor:"rgba(242, 242, 242, 0.06)",volumeUpColor:"rgba(34, 171, 148, 0.5)",volumeDownColor:"rgba(247, 82, 95, 0.5)",backgroundColor:"#0F0F0F",widgetFontColor:"#DBDBDB",upColor:"#22ab94",downColor:"#f7525f",borderUpColor:"#22ab94",borderDownColor:"#f7525f",wickUpColor:"#22ab94",wickDownColor:"#f7525f",colorTheme:"dark",isTransparent:false,locale:"en",chartOnly:false,scalePosition:"right",scaleMode:"Normal",fontFamily:"-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",valuesTracking:"1",changeMode:"price-and-percent",symbols:symbols.map(x=>[x+"|1D"]),dateRanges:["1d|1","1m|30","3m|60","12m|1D","60m|1W","all|1M"],fontSize:"10",headerFontSize:"medium",autosize:true,width:"100%",height:"100%",noTimeScale:false,hideDateRanges:false,hideMarketStatus:false,hideSymbolLogo:false});
   box.firstChild.appendChild(sc);
+}
+function loadChart(){
+  if(chartDone)return;chartDone=true;
+  tv(document.getElementById("tvw"),["EGX:ETEL","EGX:JUFO","EGX:TMGH","EGX:EFID","EGX:COMI"]);
+}
+let liveKey=null;
+function loadLive(k){
+  if(liveKey===k)return;liveKey=k;
+  document.getElementById("lvt").textContent=LIVE[k][0]+" — مباشر";
+  tv(document.getElementById("lvw"),[LIVE[k][1]]);
 }
 function route(){
   const h=decodeURIComponent(location.hash.slice(1)).replace(/^\//,"")||"home";
-  const v=VIEWS.includes(h)?h:(ALIAS[h]||"home");
+  const lm=/^live-(egx30|egx70ewi|egx100ewi)$/.exec(h);
+  const v=lm?"live":VIEWS.includes(h)?h:(ALIAS[h]||"home");
   document.querySelectorAll("main[data-view]").forEach(m=>{m.hidden=m.dataset.view!==v});
   const cur=VIEWS.includes(h)?h:(ALIAS[h]?h:"home");
   document.querySelectorAll("#menu a[data-k]").forEach(a=>a.classList.toggle("on",a.dataset.k===cur));
   document.title="مستثمرين مصريين — "+TITLES[v];
   if(v==="chart")loadChart();
+  if(v==="live")loadLive(lm[1]);
   const t=ALIAS[h]&&document.getElementById(h);
   if(t)t.scrollIntoView();else window.scrollTo(0,0);
 }
