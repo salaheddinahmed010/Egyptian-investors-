@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حلل سهمك الآن — مستثمرين مصريين</title>
+<!-- لو الخادم (app.py) على دومين تاني اكتب رابطه هنا، مثال: https://my-api.onrender.com . اتركه فاضي لو نفس الموقع -->
+<meta name="api-base" content="">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#061528;--sf:#0c2340;--fg:#f8f6f0;--mu:#a9b8cb;--dv:#1e3a5f;--gold:#b69a50;--up:#4fc48f;--down:#e88a91;--blue:#4aa8ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:radial-gradient(ellipse at 50% 0,#0d2a52,var(--bg) 60%);color:var(--fg);font:400 15px/1.8 Cairo,system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) 0 40px}
+a{color:inherit;text-decoration:none}.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+.back{display:inline-block;margin:14px 0;color:var(--mu);font-weight:700}
+#brain{display:block;width:100%;height:min(46vh,330px)}
+.chart{position:relative}.chart svg{height:170px}.cl{position:absolute;right:2px;transform:translateY(-100%);font:700 11px ui-monospace,monospace;direction:ltr;background:#0c2340cc;padding:0 4px;border-radius:4px;pointer-events:none}
+.err small{display:block;color:var(--mu);margin-top:4px}
+h1{text-align:center;font-size:24px;font-weight:800;margin:2px 0 4px}.sub{text-align:center;color:var(--mu);margin-bottom:16px}
+.sb{position:relative}.sb input{width:100%;padding:15px 18px;font:700 16px Cairo,sans-serif;color:var(--fg);background:var(--sf);border:1.5px solid var(--dv);border-radius:16px;outline:none;box-shadow:0 0 24px #1a56c455}
+.sb input:focus{border-color:var(--blue)}
+#dd{position:absolute;inset-inline:0;top:100%;margin-top:6px;background:var(--sf);border:1px solid var(--dv);border-radius:14px;overflow:hidden;z-index:5;display:none;box-shadow:0 12px 30px #0008}
+#dd div{padding:11px 16px;cursor:pointer;display:flex;gap:8px;justify-content:space-between}#dd div:hover,#dd div.on{background:#123055}
+#dd b{font-family:ui-monospace,monospace;color:var(--gold);direction:ltr}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}.chips button{font:600 13px Cairo,sans-serif;color:var(--fg);background:#0c234099;border:1px solid var(--dv);border-radius:999px;padding:7px 14px;cursor:pointer}
+.chips button:hover{border-color:var(--blue)}
+#res{margin-top:22px}.msg{text-align:center;color:var(--mu);padding:20px}.err{color:var(--down)}
+.card{background:var(--sf);border:1px solid var(--dv);border-radius:18px;padding:16px 18px;margin-bottom:14px}
+.card h3{font-size:16px;margin-bottom:8px;color:var(--gold)}
+.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px}
+.top h2{font-size:20px}.top small{color:var(--mu)}.px{font:800 30px ui-monospace,monospace;direction:ltr}
+.up{color:var(--up)}.dn{color:var(--down)}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g div{background:#0a1d36;border-radius:12px;padding:10px 12px}.g span{display:block;color:var(--mu);font-size:12px}.g b{font:700 17px ui-monospace,monospace;direction:ltr;display:inline-block}
+.tr div{padding:6px 0;border-bottom:1px dashed var(--dv)}.tr div:last-child{border:0}
+svg{width:100%;height:170px;display:block}
+.btn{display:block;width:100%;text-align:center;background:linear-gradient(135deg,#b69a50,#e6c97a);color:#071d3a;font:800 17px Cairo,sans-serif;padding:14px;border-radius:14px;border:0;cursor:pointer;margin:6px 0 10px}
+.dis{font-size:12px;color:var(--mu)}
+.dots span{display:inline-block;width:8px;height:8px;margin:0 3px;border-radius:50%;background:var(--blue);animation:b 1s infinite}.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-8px);opacity:.4}}
+.sm{display:flex;gap:8px;margin:6px 0 10px;text-align:center}.sm div{flex:1;border-radius:12px;padding:8px;background:#0a1d36}.sm b{display:block;font:800 20px ui-monospace,monospace}
+.it{width:100%;border-collapse:collapse;font-size:13px}.it td{padding:5px 4px;border-bottom:1px solid var(--dv)}.it td:nth-child(2){font-family:ui-monospace,monospace;direction:ltr;text-align:left}.it td:last-child{text-align:left;font-weight:700}
+.it th{color:var(--gold);text-align:right;padding:10px 4px 3px;font-size:13px}.s-ش{color:var(--up)}.s-ب{color:var(--down)}.s-م{color:var(--mu)}.tabs{display:flex;gap:6px;margin:6px 0 10px}.tabs button{flex:1;font:700 13px Cairo,sans-serif;padding:8px 4px;border-radius:12px;border:1px solid var(--dv);background:#0a1d36;color:var(--fg);cursor:pointer}.tabs button.on{background:var(--gold);color:#071d3a;border-color:var(--gold)}</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="index.html#technical">→ الرجوع للموقع</a>
+<canvas id="brain" role="img" aria-label="مخ ذكاء اصطناعي: شبكة عصبية على شكل مخ"></canvas>
+<h1>حلل سهمك الآن</h1>
+<p class="sub">اكتب رمز السهم (COMI) أو اسم الشركة بالعربي</p>
+<div class="sb"><input id="q" placeholder="مثال: COMI أو التجاري الدولي" autocomplete="off" enterkeyhint="search"><div id="dd"></div></div>
+<div class="chips">
+<button data-q="ETEL">حلل سهم المصرية للاتصالات...</button>
+<button data-q="TMGH">حلل سهم مجموعة طلعت مصطفى...</button>
+<button data-q="COMI">حلل سهم التجاري الدولي...</button>
+<button data-q="EFID">حلل سهم إيديتا...</button>
+</div>
+<div id="res"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ===== brain: شبكة عصبية على شكل مخ حقيقي (منظر جانبي: فصوص + أخاديد + مخيخ + جذع) ===== */
+(()=>{
+const cv=$('brain'),c=cv.getContext('2d'),D=Math.min(devicePixelRatio||1,2),still=matchMedia('(prefers-reduced-motion:reduce)').matches;let W=0,H=0;
+function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*D);cv.height=Math.round(H*D);c.setTransform(D,0,0,D,0,0)}
+const mb=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296},rnd=mb(11);
+/* محيط المخ من الجنب (الأمام يسار): قمة، قذالي، مخيخ، فص صدغي، شق سيلفيوس، فص أمامي */
+const K=[[0,1],[.55,.95],[1.05,.72],[1.4,.32],[1.5,-.05],[1.38,-.38],[1.05,-.52],[.55,-.55],[.1,-.78],[-.4,-.82],[-.8,-.62],[-.95,-.4],[-1.25,-.36],[-1.52,-.08],[-1.58,.28],[-1.35,.64],[-.95,.88],[-.5,.99]],CX=0,CY=.1;
+const cr=(p0,p1,p2,p3,t)=>[0,1].map(i=>.5*(2*p1[i]+(-p0[i]+p2[i])*t+(2*p0[i]-5*p1[i]+4*p2[i]-p3[i])*t*t+(-p0[i]+3*p1[i]-3*p2[i]+p3[i])*t*t*t)),poly=[];
+for(let i=0;i<K.length;i++)for(let j=0;j<16;j++)poly.push(cr(K[(i+K.length-1)%K.length],K[i],K[(i+1)%K.length],K[(i+2)%K.length],j/16));
+const NB=360,RT=new Float32Array(NB);
+for(let b=0;b<NB;b++){const a=b*Math.PI*2/NB,dx=Math.cos(a),dy=Math.sin(a);let best=0;
+ for(let i=0;i<poly.length;i++){const p=poly[i],q=poly[(i+1)%poly.length],ex=q[0]-p[0],ey=q[1]-p[1],px=p[0]-CX,py=p[1]-CY,den=dx*ey-dy*ex;if(Math.abs(den)<1e-9)continue;
+  const t=(px*ey-py*ex)/den,u=(px*dy-py*dx)/den;if(t>0&&u>=0&&u<=1&&t>best)best=t}
+ RT[b]=best||1}
+const R=a=>{a=(a%6.2832+6.2832)%6.2832;const f=a*NB/6.2832,i=Math.floor(f)%NB,w=f-Math.floor(f);return RT[i]*(1-w)+RT[(i+1)%NB]*w};
+const T=.7,sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)},
+ fold=(x,y,z)=>.55*Math.sin(6.3*x+1.4*z)*Math.sin(5.2*y-1.8*z+1.2*x)+.25*Math.sin(11*x+8*y+3*z);
+/* نقطة على سطح نصف كرة المخ (أو داخله) */
+function cereb(inner){const side=rnd()<.5?1:-1,th=rnd()*6.2832,s=inner?.12+rnd()*.7:Math.sqrt(rnd()),r=s*R(th);
+ let x=CX+r*Math.cos(th),y=CY+r*Math.sin(th),z=T*Math.sqrt(Math.max(0,1-s*s))*(inner?.15+rnd()*.7:1);
+ if(!inner){z-=.11*Math.exp(-(((y-(-.2+.3*(x+.9)))/.065)**2))*sm(-.85,-.55,x)*(1-sm(.75,1.05,x)); /* شق سيلفيوس */
+  z-=.09*Math.exp(-(((x-(.18-.28*(y-.25)))/.05)**2))*sm(-.15,.35,y)*(1-sm(.85,1,y))} /* الأخدود المركزي */
+ z=Math.max(z,0)+.045;const nx=x-CX,ny=y-CY,nz=z*1.3,nl=Math.hypot(nx,ny,nz)||1,d=inner?.02:.055*fold(x,y,z);
+ return[x+nx/nl*d,y+ny/nl*d,side*(z+nz/nl*d*.8)]}
+const mkCerebellum=()=>{const u=rnd()*2-1,ph=rnd()*6.2832,rr=Math.sqrt(1-u*u),f=1+.07*Math.sin(24*u);return[1+.5*rr*Math.cos(ph)*f,-.68+.28*u*f,.42*rr*Math.sin(ph)*f]},
+ mkStem=()=>{const u=rnd(),ph=rnd()*6.2832,r=.15-.06*u;return[.32+.28*u+r*Math.cos(ph)*.8,-.55-.5*u,r*Math.sin(ph)]};
+const P=[];
+function add(gen,n,cand){for(let k=0;k<n;k++){let best=null,bd=-1;for(let q=0;q<cand;q++){const p=gen();let md=9;for(const o of P){const d=(p[0]-o[0])**2+(p[1]-o[1])**2+(p[2]-o[2])**2;if(d<md)md=d}if(md>bd){bd=md;best=p}}P.push(best)}}
+add(()=>cereb(0),500,5);add(mkCerebellum,90,5);add(mkStem,34,5);const inner0=P.length;add(()=>cereb(1),70,4);
+const N=P.length,V=P.map((p,i)=>({x:p[0],y:p[1],z:p[2],f:0,big:rnd()<.12?1.7:1,sx:0,sy:0,k:1,d:0})),E=[],seen=new Set(),adj=Array.from({length:N},()=>[]);
+const link=(i,j)=>{if(i===j)return;const k=i<j?i*N+j:j*N+i;if(seen.has(k))return;seen.add(k);E.push([i,j]);adj[i].push(j);adj[j].push(i)};
+for(let i=0;i<N;i++){const a=V[i],ds=[],cut=i>=inner0?.25:.1156;
+ for(let j=0;j<N;j++)if(j!==i){const b=V[j];ds.push([(a.x-b.x)**2+(a.y-b.y)**2+(a.z-b.z)**2,j])}
+ ds.sort((u,v)=>u[0]-v[0]);for(let k=0;k<3;k++)if(ds[k][0]<cut)link(i,ds[k][1])}
+for(let n=0;n<30;n++){const i=rnd()*N|0,j=rnd()*N|0,d=Math.hypot(V[i].x-V[j].x,V[i].y-V[j].y,V[i].z-V[j].z);if(d>.45&&d<1.1)link(i,j)}
+const pulses=[],fire=(i,from)=>{const nb=adj[i].filter(j=>j!==from);if(!nb.length||pulses.length>26)return;pulses.push({a:i,b:nb[Math.random()*nb.length|0],t:0,v:.9+Math.random()*.8})};
+let t=0,last=0;
+function draw(dt){
+ c.clearRect(0,0,W,H);
+ const yaw=.28+.46*Math.sin(t*.42),pit=.1+.035*Math.sin(t*.63),cw=Math.cos(yaw),sw=Math.sin(yaw),cp=Math.cos(pit),sp=Math.sin(pit),sc=Math.min(W/3.5,H/2.3)*(1+.012*Math.sin(t*1.3)),ox=W/2,oy=H/2;
+ for(const n of V){const x1=n.x*cw+n.z*sw,z1=-n.x*sw+n.z*cw,y2=n.y*cp-z1*sp,z2=n.y*sp+z1*cp,k=4.2/(4.2-z2);n.sx=ox+x1*sc*k;n.sy=oy-y2*sc*k;n.k=k;n.d=Math.min(.999,Math.max(0,(z2+.9)/1.8))}
+ const eb=[[],[],[],[]],nb=[[],[],[],[]];
+ E.forEach((e,i)=>eb[Math.min(3,(V[e[0]].d+V[e[1]].d)*2|0)].push(e));V.forEach(n=>nb[n.d*4|0].push(n));
+ c.lineWidth=1;
+ for(let b=0;b<4;b++){c.strokeStyle=`rgba(74,168,255,${[.1,.16,.24,.34][b]})`;c.beginPath();for(const e of eb[b]){c.moveTo(V[e[0]].sx,V[e[0]].sy);c.lineTo(V[e[1]].sx,V[e[1]].sy)}c.stroke()}
+ for(let b=0;b<4;b++){c.fillStyle=`rgba(${110+b*10},${190+b*8},255,${.35+.2*b})`;c.beginPath();for(const n of nb[b]){const r=(1.1+1.2*n.d)*n.big*n.k;c.moveTo(n.sx+r,n.sy);c.arc(n.sx,n.sy,r,0,6.2832)}c.fill()}
+ c.shadowColor='#4aa8ff';
+ for(const n of V)if(n.f>.04){c.shadowBlur=18*n.f;c.fillStyle=`rgba(235,247,255,${.35+.65*n.f})`;c.beginPath();c.arc(n.sx,n.sy,(2+3*n.f)*n.k,0,6.2832);c.fill();n.f*=Math.pow(.2,dt)}
+ for(let i=pulses.length-1;i>=0;i--){const p=pulses[i],a=V[p.a],b=V[p.b];p.t+=dt*p.v*1.6;
+  if(p.t>=1){b.f=1;pulses.splice(i,1);if(Math.random()<.8)fire(p.b,p.a);if(Math.random()<.2)fire(p.b,p.a);continue}
+  const hx=a.sx+(b.sx-a.sx)*p.t,hy=a.sy+(b.sy-a.sy)*p.t,q=Math.max(0,p.t-.3),tx=a.sx+(b.sx-a.sx)*q,ty=a.sy+(b.sy-a.sy)*q;
+  c.shadowBlur=10;c.strokeStyle='rgba(205,236,255,.8)';c.lineWidth=1.5;c.beginPath();c.moveTo(tx,ty);c.lineTo(hx,hy);c.stroke();
+  c.fillStyle='#fff';c.beginPath();c.arc(hx,hy,2,0,6.2832);c.fill()}
+ c.shadowBlur=0}
+function frame(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;t+=dt;
+ if(Math.random()<.06)fire(Math.random()*N|0);draw(dt);requestAnimationFrame(frame)}
+addEventListener('resize',()=>{size();if(still)draw(0)});size();
+if(still){for(let i=0;i<14;i++)V[Math.random()*N|0].f=1;draw(0)}else{for(let i=0;i<6;i++)fire(Math.random()*N|0);requestAnimationFrame(frame)}
+})();
+/* ===== api ===== */
+const API=((document.querySelector('meta[name=api-base]')||{}).content||window.API_BASE||'').replace(/\/$/,'');
+async function api(path){
+ let r;try{r=await fetch(API+path)}catch(e){throw new Error('تعذّر الاتصال بالخادم. تأكد من تشغيل app.py أو من رابط الخادم.')}
+ const txt=await r.text();let j=null;try{j=JSON.parse(txt)}catch(e){}
+ if(!j)throw new Error(r.status===404?'خدمة التحليل غير موصولة بهذا الموقع (404). شغّل app.py أو انشر مجلد api مع الموقع.':'رد الخادم غير صالح (HTTP '+r.status+').');
+ if(!r.ok)throw new Error(j.error||'حدث خطأ ('+r.status+')');
+ return j}
+/* ===== search + autocomplete ===== */
+const q=$('q'),dd=$('dd');let tm,sel=-1,items=[],seq=0;
+q.addEventListener('input',()=>{clearTimeout(tm);const v=q.value.trim();if(v.length<2){dd.style.display='none';return}
+ tm=setTimeout(async()=>{const my=++seq;let r=[];try{r=await api('/api/suggest?q='+encodeURIComponent(v))}catch(e){}
+  if(my!==seq)return;items=r;sel=-1;dd.innerHTML=items.map((s,i)=>`<div data-i="${i}"><span>🏢 ${esc(s.name)}</span><b>${esc(s.symbol)}</b></div>`).join('');dd.style.display=items.length?'block':'none'},150)});
+dd.addEventListener('click',e=>{const d=e.target.closest('[data-i]');if(d)go(items[d.dataset.i].symbol)});
+q.addEventListener('keydown',e=>{const n=items.length,open=dd.style.display==='block';
+ if(open&&n&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();sel=(sel+(e.key==='ArrowDown'?1:-1)+n)%n;[...dd.children].forEach((d,i)=>d.classList.toggle('on',i===sel))}
+ if(e.key==='Enter'){e.preventDefault();go(open&&sel>=0?items[sel].symbol:q.value)}});
+document.addEventListener('click',e=>{if(!e.target.closest('.sb'))dd.style.display='none'});
+document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>go(b.dataset.q));
+/* ===== analyze + render ===== */
+async function go(v){v=v.trim();if(!v)return;seq++;dd.style.display='none';q.value=v;q.blur();
+ $('res').innerHTML='<div class="msg"><div class="dots"><span></span><span></span><span></span></div>جارٍ تحليل السهم…</div>';
+ try{show(await api('/api/analyze?q='+encodeURIComponent(v)))}
+ catch(e){$('res').innerHTML=`<div class="msg err">${esc(e.message||'حدث خطأ')}</div>`}}
+function chart(a){const L=[a.tp2,a.tp1,a.entry[1],a.sl,...a.hist],mx=Math.max(...L),mn=Math.min(...L),H=170,y=v=>8+(mx-v)/(mx-mn||1)*(H-16),n=a.hist.length,
+ ln=(v,col)=>`<line x1="0" x2="600" y1="${y(v)}" y2="${y(v)}" stroke="${col}" stroke-dasharray="5 4" opacity=".7" vector-effect="non-scaling-stroke"/>`,
+ lb=(v,col,t)=>`<span class="cl" style="top:${(y(v)/H*100).toFixed(1)}%;color:${col}">${t} ${v}</span>`,
+ ls=[[a.tp2,'#4fc48f','TP2'],[a.tp1,'#4fc48f','TP1'],[a.entry[1],'#e6c97a','دخول'],[a.sl,'#e88a91','وقف']];
+ return `<div class="chart"><svg viewBox="0 0 600 ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="#4aa8ff" stroke-width="2" vector-effect="non-scaling-stroke" points="${a.hist.map((v,i)=>(i/Math.max(1,n-1)*600).toFixed(1)+','+y(v).toFixed(1)).join(' ')}"/>${ls.map(l=>ln(l[0],l[1])).join('')}</svg>${ls.map(l=>lb(...l)).join('')}</div>`}
+const TL={open:'افتتاح الفترة',close:'الإغلاق',change:'التغير %',high:'الأعلى',low:'الأدنى',range_pct:'المدى %',pos:'موقع الإغلاق في النطاق %',vol_ratio:'الحجم ÷ متوسط 20',volatility:'التقلب اليومي %',max_dd:'أقصى تراجع %',gap:'فجوة الافتتاح %',candle:'الشمعة'};
+function tab(k){const p=A.periods[k],m=p.summary,st=p.stats;let g='';
+ let h=`<div class="tabs">${Object.entries(A.periods).map(([x,q])=>`<button class="${x===k?'on':''}" onclick="tab('${x}')">${q.label}</button>`).join('')}</div>
+ <h3>الخلاصة: ${m.overall}</h3><div class="sm"><div class="up">شراء<b>${m.buy}</b></div><div class="dn">بيع<b>${m.sell}</b></div><div style="color:var(--mu)">محايد<b>${m.neutral}</b></div></div>
+ <div class="g">${Object.keys(TL).filter(x=>st[x]!=null).map(x=>`<div><span>${TL[x]}</span><b style="font-family:inherit">${esc(st[x])}</b></div>`).join('')}</div><p class="dis" style="margin:8px 0">${esc(p.text)}</p>
+ <div style="overflow-x:auto"><table class="it">`;
+ for(const i of p.indicators){if(i.group!==g){g=i.group;h+=`<tr><th colspan="3">${esc(g)}</th></tr>`}h+=`<tr><td>${esc(i.name)}</td><td>${i.value==null?'—':i.value.toLocaleString('en',{minimumFractionDigits:2})}</td><td class="s-${i.signal[0]}">${i.signal}</td></tr>`}
+ $('pc').innerHTML=h+'</table></div>'}
+function show(a){const cl=a.change>=0?'up':'dn',f=v=>v==null?'—':v.toLocaleString('en',{minimumFractionDigits:2});
+ $('res').innerHTML=`
+ <div class="card"><div class="top"><div><h2>${esc(a.name)}</h2><small>${esc(a.symbol)}.CA · آخر جلسة ${a.date}</small></div><div><span class="px">${f(a.price)}</span> <span class="${cl}" style="direction:ltr;display:inline-block">${a.change>0?'+':''}${a.change}%</span></div></div>${chart(a)}</div>
+ <div class="card"><h3>المؤشرات الفنية</h3><div class="g"><div><span>الاتجاه العام</span><b style="font-family:Cairo">${a.trend}</b></div><div><span>RSI (14)</span><b>${a.rsi}</b></div><div><span>متوسط 50 يوم</span><b>${f(a.sma50)}</b></div><div><span>متوسط 200 يوم</span><b>${f(a.sma200)}</b></div></div><p class="dis" style="margin-top:8px">${esc(a.rsi_zone)}</p></div>
+ <div class="card tr"><h3>نقاط التداول</h3><div>🟢 منطقة الدخول: <b>${f(a.entry[0])} – ${f(a.entry[1])}</b> جنيه <small class="dis">(${esc(a.entry_basis)})</small></div><div>🎯 الهدف الأول: <b>${f(a.tp1)}</b></div><div>🎯 الهدف الثاني: <b>${f(a.tp2)}</b></div><div>🔴 وقف الخسارة: <b>${f(a.sl)}</b></div><div>⚖️ العائد/المخاطرة حتى الهدف الأول: <b>${a.rr}:1</b></div></div>
+ <div class="card"><h3>التحليل حسب الإطار الزمني</h3><div id="pc"></div></div>
+ <div class="card"><h3>القراءة الفنية — ${a.view}</h3><p>${esc(a.text)}</p></div>
+ <a class="btn" href="${API}/api/report.pdf?q=${encodeURIComponent(a.symbol)}" target="_blank" rel="noopener">تحميل التقرير PDF 📥</a>
+ <p class="dis">إخلاء مسؤولية: التقرير مُولَّد آليًا لأغراض استرشادية وتحليلية فقط ولا يُعد توصية مباشرة بالشراء أو البيع.</p>`;
+ window.A=a;tab('year');
+ $('res').scrollIntoView({behavior:'smooth'})}
+</script>
+</body>
+</html>
