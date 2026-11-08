@@ -1,6 +1,0 @@
-flask>=3.0
-yfinance>=0.2.54
-pandas
-numpy
-gunicorn
-# weasyprint   # اختياري: لتوليد PDF حقيقي على جهازك (يحتاج مكتبات Pango). بدونه يفتح التقرير للطباعة/الحفظ كـ PDF من المتصفح.
