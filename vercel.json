@@ -1,4 +1,0 @@
-{
-  "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index" }],
-  "functions": { "api/index.py": { "maxDuration": 30, "includeFiles": "{app.py,indicators.py,index.html,analyze.html,symbols*.csv}" } }
-}
