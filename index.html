@@ -1847,39 +1847,64 @@ function post(url,opts,ms){
   return fetch(url,opts).then(function(r){clearTimeout(to);return r},function(e){clearTimeout(to);throw e});
 }
 var LAST=[];
-function note(e){LAST.push(String(e&&e.message||e).slice(0,110))}
+function note(e){LAST.push(String(e&&e.message||e).slice(0,140))}
+function clean(t){return String(t).replace(/<think>[\s\S]*?<\/think>/gi,"").trim()}
 function call(url,opts,pick,tag){
   return post(url,opts,30000).then(function(r){
     if(!r.ok)return r.text().then(function(t){var m="";try{m=((JSON.parse(t).error)||{}).message||""}catch(x){}throw new Error(tag+" ["+r.status+"] "+m)});
     return r.json();
   },function(e){throw new Error(tag+" [net] "+(e&&e.name==="AbortError"?"timeout":"blocked/offline"))})
-  .then(function(j){var t=pick(j);if(!t||!String(t).trim())throw new Error(tag+" [empty]");return String(t)});
+  .then(function(j){var t=pick(j);if(!t||!String(t).trim())throw new Error(tag+" [empty]");return t});
 }
-function groq(model){
-  return function(q){return call("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K[0]},
-    body:JSON.stringify({model:model,temperature:.4,max_tokens:2200,messages:[{role:"system",content:SYS},{role:"user",content:"اريد تحليل سهم "+q}]})},
-    function(j){return j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content},"M1/"+model)};
+/* --- Groq: اكتشاف الموديلات المتاحة للمفتاح تلقائيًا --- */
+function groqModels(){
+  return call("https://api.groq.com/openai/v1/models",{method:"GET",headers:{"Authorization":"Bearer "+K[0]}},
+    function(j){return JSON.stringify((j&&j.data||[]).map(function(m){return m.id}))},"M1/list")
+  .then(JSON.parse).catch(function(e){if(st.gone)throw e;note(e);return[]})
+  .then(function(ids){
+    var bad=/whisper|tts|guard|embed|orpheus|playai|allam|safeguard/i,pref=[/gpt-oss-120b/,/llama-3\.3-70b/,/llama-4/,/kimi/,/qwen/,/gpt-oss-20b/,/llama-3\.1-8b/],ok=ids.filter(function(i){return!bad.test(i)}),out=[];
+    pref.forEach(function(r){ok.forEach(function(i){if(r.test(i)&&out.indexOf(i)<0)out.push(i)})});
+    ok.forEach(function(i){if(out.indexOf(i)<0)out.push(i)});
+    ["openai/gpt-oss-120b","llama-3.3-70b-versatile"].forEach(function(i){if(out.indexOf(i)<0&&!ids.length)out.push(i)});
+    return out.slice(0,4);
+  });
 }
-function gem(model,vertex){
-  return function(q){
-    var body=JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:[{role:"user",parts:[{text:"اريد تحليل سهم "+q}]}],generationConfig:{temperature:.4,maxOutputTokens:4096}});
-    var url=vertex?"https://aiplatform.googleapis.com/v1/publishers/google/models/"+model+":generateContent?key="+encodeURIComponent(K[1])
-                  :"https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent";
-    var h={"Content-Type":"application/json"};if(!vertex)h["x-goog-api-key"]=K[1];
-    return call(url,{method:"POST",headers:h,body:body},function(j){
-      var ps=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];
-      return ps.map(function(p){return p.text||""}).join("");
-    },"M2/"+(vertex?"v/":"")+model);
-  };
+function groqAsk(model,q){
+  var b={model:model,temperature:.4,max_tokens:4000,messages:[{role:"system",content:SYS},{role:"user",content:"اريد تحليل سهم "+q}]};
+  if(/gpt-oss/.test(model))b.reasoning_effort="low";
+  return call("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K[0]},body:JSON.stringify(b)},
+    function(j){var t=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;return t&&clean(t)},"M1/"+model);
+}
+/* --- Gemini: اكتشاف الموديلات المتاحة للمفتاح تلقائيًا --- */
+function gemModels(){
+  return call("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",{method:"GET",headers:{"x-goog-api-key":K[1]}},
+    function(j){return JSON.stringify((j&&j.models||[]).filter(function(m){return(m.supportedGenerationMethods||[]).indexOf("generateContent")>-1}).map(function(m){return String(m.name).replace(/^models\//,"")}))},"M2/list")
+  .then(JSON.parse).catch(function(e){if(st.gone)throw e;note(e);return[]})
+  .then(function(ids){
+    var bad=/embed|image|tts|live|audio|robotics|computer|gemma|lite|exp|learnlm|aqa|imagen|veo/i;
+    var ok=ids.filter(function(i){return/^gemini-/.test(i)&&!bad.test(i)});
+    function ver(i){var m=/gemini-(\d+(?:\.\d+)?)/.exec(i);return m?parseFloat(m[1]):0}
+    ok.sort(function(x,y){var fx=/flash/.test(x)?1:0,fy=/flash/.test(y)?1:0;return fy-fx||ver(y)-ver(x)});
+    var out=["gemini-flash-latest"];ok.forEach(function(i){if(out.indexOf(i)<0)out.push(i)});
+    return out.slice(0,4);
+  });
+}
+function gemAsk(model,q){
+  var body=JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:[{role:"user",parts:[{text:"اريد تحليل سهم "+q}]}],generationConfig:{temperature:.4,maxOutputTokens:8192}});
+  return call("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":K[1]},body:body},
+    function(j){var ps=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];return clean(ps.map(function(p){return p.text||""}).join(""))},"M2/"+model);
+}
+function tryList(models,fn,q){
+  function go(i){
+    if(i>=models.length)return Promise.reject(new Error("exhausted"));
+    return fn(models[i],q).catch(function(e){if(st.gone)throw e;note(e);return go(i+1)});
+  }
+  return go(0);
 }
 function askAI(q){
   LAST=[];
-  var chain=[groq("llama-3.3-70b-versatile"),groq("llama-3.1-8b-instant"),gem("gemini-2.5-flash",false),gem("gemini-2.0-flash",false),gem("gemini-2.5-flash",true),gem("gemini-2.0-flash",true)];
-  function go(i){
-    if(i>=chain.length)return Promise.reject(new Error("all"));
-    return chain[i](q).catch(function(e){if(st.gone)throw e;note(e);return go(i+1)});
-  }
-  return go(0);
+  return groqModels().then(function(m){return tryList(m,groqAsk,q)})
+  .catch(function(e){if(st.gone)throw e;return gemModels().then(function(m){return tryList(m,gemAsk,q)})});
 }
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function inl(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")}
