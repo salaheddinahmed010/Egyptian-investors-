@@ -1740,10 +1740,6 @@ var brain=(function(){
       d=1+.09*nz(x*2,y*2,z*2);
       pts.push({x:side*(.03+lx)*d,y:ly*d,z:lz*d});
     }
-    for(i=0;i<120;i++){
-      u=Math.random()*2-1;th=Math.random()*6.2832;s=Math.sqrt(1-u*u);
-      pts.push({x:s*Math.cos(th)*.22,y:-.38+u*.13,z:-.42+s*Math.sin(th)*.2});
-    }
     var seen={},n=pts.length,a,b,j,best,dd,k;
     for(a=0;a<n;a++){
       best=[];
@@ -1933,7 +1929,7 @@ function nfmt(x){return typeof x==="number"&&isFinite(x)?(Math.abs(x)>=1e6?(x/1e
 function todayAr(){try{return new Intl.DateTimeFormat("ar-EG",{timeZone:"Africa/Cairo",dateStyle:"full",timeStyle:"short"}).format(new Date())}catch(e){return new Date().toString()}}
 function pkgFor(q,mk,tk){
   var iso=new Date().toISOString().slice(0,10);
-  var sys=SYS+"\n- تاريخ اليوم الفعلي: "+todayAr()+" ("+iso+"). لا تعتمد على معلوماتك المخزنة القديمة (مثل بيانات 2024) في الأسعار أو النتائج المالية أو الأخبار.\n- إن توفر لك بحث على الإنترنت فاستخدمه لجلب آخر الأخبار والنتائج المالية والإعلانات المنشورة قبل التحليل، واذكر تاريخ أي رقم تعتمد عليه.\n- إن أُرفقت بيانات سوق حية فهي المرجع الأول للأسعار والمؤشرات الفنية، ولا تناقضها. وإن لم تتوفر بيانات حديثة لبند ما فاكتب «غير متوفر حاليًا» بدل التخمين.\n- ابدأ التحليل بسطر يوضح تاريخ البيانات التي اعتمدت عليها.";
+  var sys=SYS+"\n- تاريخ اليوم الفعلي: "+todayAr()+" ("+iso+"). لا تعتمد على معلوماتك المخزنة القديمة (مثل بيانات 2024) في الأسعار أو النتائج المالية أو الأخبار.\n- إن توفر لك بحث على الإنترنت فاستخدمه لجلب آخر الأخبار والنتائج المالية والإعلانات المنشورة قبل التحليل، \n- إن أُرفقت بيانات سوق حية فهي المرجع الأول للأسعار والمؤشرات الفنية، ولا تناقضها. وإن لم تتوفر بيانات حديثة لبند ما فاكتب «غير متوفر حاليًا» بدل التخمين.\n- لا تكتب في بداية التحليل أي سطر عن تاريخ البيانات أو مصدرها؛ ابدأ مباشرة بالعنوان الأول.";
   var u="اريد تحليل سهم "+q;
   if(mk){var o={};Object.keys(mk).forEach(function(k){var v=mk[k];if(v!==null&&v!==undefined)o[k]=typeof v==="number"?Math.round(v*1e4)/1e4:v});
     u+="\n\nبيانات السوق الحية من TradingView وقت الطلب ("+iso+") للرمز EGX:"+tk+" (آخر سعر متاح للجلسة):\n"+JSON.stringify(o)}
@@ -1944,7 +1940,7 @@ function mkHtml(mk,tk){
   if(!mk)return"";
   var rows=[["السعر",nfmt(mk.close)],["التغير",mk.change!=null&&nfmt(mk.change)?nfmt(mk.change)+"%":null],["حجم التداول",nfmt(mk.volume)],["أعلى 52 أسبوع",nfmt(mk.price_52_week_high)],["أدنى 52 أسبوع",nfmt(mk.price_52_week_low)],["مكرر الربحية P/E",nfmt(mk.price_earnings_ttm)],["ربحية السهم EPS",nfmt(mk.earnings_per_share_basic_ttm)],["RSI",nfmt(mk.RSI)]].filter(function(r){return r[1]});
   if(!rows.length)return"";
-  return'<div class="ai-mk">'+rows.map(function(r){return'<div><span>'+esc(r[0])+'</span><b dir="ltr">'+esc(r[1])+'</b></div>'}).join("")+'</div><div class="ai-mkn">بيانات حية من TradingView للرمز '+esc(tk)+' — '+esc(todayAr())+'</div>';
+  return'<div class="ai-mk">'+rows.map(function(r){return'<div><span>'+esc(r[0])+'</span><b dir="ltr">'+esc(r[1])+'</b></div>'}).join("")+'</div>';
 }
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function inl(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")}
