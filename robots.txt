@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://egyptianinvestorstelegram.vercel.app/sitemap.xml
