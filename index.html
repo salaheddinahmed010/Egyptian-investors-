@@ -458,6 +458,54 @@ html.ai-on{overflow:hidden}
 @keyframes aiDot{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-9px);opacity:1}}
 @media(prefers-reduced-motion:reduce){.sway,.ai-fog,.l3{animation:none}}
 
+
+/* ===== mobile fit (all pages) ===== */
+.ai-diag{margin-top:12px;font:500 11px/1.7 var(--mono);color:#e9a9b1;text-align:left;overflow-wrap:anywhere;opacity:.85}
+@media(max-width:520px){
+.ai-search{flex-wrap:wrap}
+.ai-search .pre{flex:0 0 100%;padding:12px 16px 0}
+.ai-search input{flex:1 1 0;padding:12px 16px}
+.ai-search button{padding:0 22px;min-height:48px}
+.ai-hero{font-size:20px}
+}
+html,body{max-width:100%;overflow-x:hidden}
+img,svg,canvas,video,iframe{max-width:100%}
+.card,.pn,.cm,.ic,.row,.lrn li,.quiz,.opt{min-width:0;overflow-wrap:anywhere}
+.icg{grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr))}
+.icn span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.kv{flex-wrap:wrap}
+.lrn .lt{overflow-wrap:anywhere}
+.lrn .lt .tw{max-width:100%;-webkit-overflow-scrolling:touch}
+.lrn .lt table{min-width:0}
+.lrn .lt pre{overflow-x:auto;max-width:100%}
+.tvw,.tvadv,.tv-seasonal-wrap{max-width:100%;overflow:hidden}
+@media(max-width:640px){
+ .hi{gap:8px}.brand{min-width:0}.bw b{font-size:16px}.menulbl{display:none}
+ .hero{padding:32px 0 48px}.hero h1{font-size:34px}.team{font-size:17px}
+ .sh h2{font-size:24px}
+ .snap-h{padding:20px 20px 10px}.rows{padding:0 16px 18px}
+ .row{grid-template-columns:minmax(0,1fr) auto 66px;gap:8px;padding:12px}
+ .row .num:nth-child(2){font-size:16px}
+ .card{padding:18px;flex-wrap:wrap}
+ .pn{padding:18px}
+ .lrn .lt h2{font-size:21px}.lrn .lt p,.lrn .lt li{font-size:15px}
+ .lrn .lt th,.lrn .lt td{padding:8px 6px;font-size:13px}
+ .lrn li{padding:12px;gap:10px;font-size:14.5px;flex-wrap:wrap}
+ .lrn .quiz{padding:16px}.lrn .opt{padding:10px 12px;font-size:14px}
+ .course-finish .finish-actions .btn,.btn{max-width:100%}
+ .tvw{min-height:420px;height:calc(100vh - 170px)}
+ .lkc,.contest-notice-panel{max-width:100%}
+ .cdown{font-size:12px}
+ .rg{max-width:100%}
+ .ct{padding:20px 0}
+ footer{padding:22px 16px}
+}
+@media(max-width:380px){
+ .wrap,.hi,#menu .mi{padding-inline:14px}
+ .ai3d-f{font-size:16px;padding:16px 12px}
+ .icp{font-size:20px}.icc{font-size:15px}
+ .nbscene{zoom:.72}
+}
 </style>
 </head>
 <body>
@@ -1719,7 +1767,7 @@ var brain=(function(){
     if(!t0)t0=ts;
     size();if(!W)return;
     var t=(ts-t0)/1000,ang=t*.9,ca=Math.cos(ang),sa=Math.sin(ang),pit=.22,cp=Math.cos(pit),sp=Math.sin(pit);
-    var S=Math.min(W,H)*.8,f=3.2,i,p,x,y,z,k;
+    var S=Math.min(W,H)*.6,f=3.2,i,p,x,y,z,k;
     cx.clearRect(0,0,W,H);
     for(i=0;i<pts.length;i++){
       p=pts[i];x=p.x*ca+p.z*sa;z=-p.x*sa+p.z*ca;y=p.y*cp-z*sp;z=p.y*sp+z*cp;
@@ -1798,34 +1846,40 @@ function post(url,opts,ms){
   opts.signal=c.signal;
   return fetch(url,opts).then(function(r){clearTimeout(to);return r},function(e){clearTimeout(to);throw e});
 }
-function viaGroq(q){
-  return post("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K[0]},
-    body:JSON.stringify({model:"llama-3.3-70b-versatile",temperature:.4,max_tokens:2200,messages:[{role:"system",content:SYS},{role:"user",content:"اريد تحليل سهم "+q}]})},45000)
-  .then(function(r){if(!r.ok)throw new Error("m1:"+r.status);return r.json()})
-  .then(function(j){var t=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;if(!t||!t.trim())throw new Error("m1:empty");return t});
+var LAST=[];
+function note(e){LAST.push(String(e&&e.message||e).slice(0,110))}
+function call(url,opts,pick,tag){
+  return post(url,opts,30000).then(function(r){
+    if(!r.ok)return r.text().then(function(t){var m="";try{m=((JSON.parse(t).error)||{}).message||""}catch(x){}throw new Error(tag+" ["+r.status+"] "+m)});
+    return r.json();
+  },function(e){throw new Error(tag+" [net] "+(e&&e.name==="AbortError"?"timeout":"blocked/offline"))})
+  .then(function(j){var t=pick(j);if(!t||!String(t).trim())throw new Error(tag+" [empty]");return String(t)});
 }
-function viaGemini(q){
-  var body=JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:[{role:"user",parts:[{text:"اريد تحليل سهم "+q}]}],generationConfig:{temperature:.4,maxOutputTokens:4096,thinkingConfig:{thinkingBudget:0}}});
-  var eps=[
-    ["https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{"x-goog-api-key":K[1]}],
-    ["https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent?key="+encodeURIComponent(K[1]),{}]
-  ];
-  function tryAt(i){
-    if(i>=eps.length)return Promise.reject(new Error("m2:failed"));
-    var h={"Content-Type":"application/json"};for(var k in eps[i][1])h[k]=eps[i][1][k];
-    return post(eps[i][0],{method:"POST",headers:h,body:body},45000)
-      .then(function(r){if(!r.ok)throw new Error("m2:"+r.status);return r.json()})
-      .then(function(j){
-        var ps=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];
-        var t=ps.map(function(p){return p.text||""}).join("");
-        if(!t.trim())throw new Error("m2:empty");return t;
-      })
-      .catch(function(e){if(st.gone)throw e;return tryAt(i+1)});
-  }
-  return tryAt(0);
+function groq(model){
+  return function(q){return call("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K[0]},
+    body:JSON.stringify({model:model,temperature:.4,max_tokens:2200,messages:[{role:"system",content:SYS},{role:"user",content:"اريد تحليل سهم "+q}]})},
+    function(j){return j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content},"M1/"+model)};
+}
+function gem(model,vertex){
+  return function(q){
+    var body=JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:[{role:"user",parts:[{text:"اريد تحليل سهم "+q}]}],generationConfig:{temperature:.4,maxOutputTokens:4096}});
+    var url=vertex?"https://aiplatform.googleapis.com/v1/publishers/google/models/"+model+":generateContent?key="+encodeURIComponent(K[1])
+                  :"https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent";
+    var h={"Content-Type":"application/json"};if(!vertex)h["x-goog-api-key"]=K[1];
+    return call(url,{method:"POST",headers:h,body:body},function(j){
+      var ps=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];
+      return ps.map(function(p){return p.text||""}).join("");
+    },"M2/"+(vertex?"v/":"")+model);
+  };
 }
 function askAI(q){
-  return viaGroq(q).catch(function(e){if(st.gone)throw e;console.warn("primary unavailable:",e.message);return viaGemini(q)});
+  LAST=[];
+  var chain=[groq("llama-3.3-70b-versatile"),groq("llama-3.1-8b-instant"),gem("gemini-2.5-flash",false),gem("gemini-2.0-flash",false),gem("gemini-2.5-flash",true),gem("gemini-2.0-flash",true)];
+  function go(i){
+    if(i>=chain.length)return Promise.reject(new Error("all"));
+    return chain[i](q).catch(function(e){if(st.gone)throw e;note(e);return go(i+1)});
+  }
+  return go(0);
 }
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function inl(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")}
@@ -1855,7 +1909,7 @@ function submit(){
     setTimeout(function(){var c=$("#aiOut .ai-card");if(c)c.scrollIntoView({behavior:"smooth",block:"start"})},80);
   }).catch(function(e){
     if(st.gone)return;
-    $("#aiOut").innerHTML='<div class="ai-err">تعذّر الحصول على التحليل الآن. تأكد من اتصال الإنترنت ثم حاول مرة أخرى بعد قليل.</div>';
+    $("#aiOut").innerHTML='<div class="ai-err">تعذّر الحصول على التحليل الآن. حاول مرة أخرى بعد قليل.<div class="ai-diag" dir="ltr">'+LAST.map(esc).join("<br>")+'</div></div>';
   }).then(function(){st.busy=false;if(!st.gone)$("#aiLoad").hidden=true});
 }
 $("#aiGo").addEventListener("click",submit);
