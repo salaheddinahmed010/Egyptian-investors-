@@ -506,6 +506,10 @@ img,svg,canvas,video,iframe{max-width:100%}
  .icp{font-size:20px}.icc{font-size:15px}
  .nbscene{zoom:.72}
 }
+.ai-mk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 6px}
+.ai-mk div{display:flex;justify-content:space-between;gap:8px;background:rgba(20,40,72,.55);border:1px solid #24466f;border-radius:12px;padding:9px 12px;font-size:13px}
+.ai-mk span{color:#9db4d3}.ai-mk b{color:#f6e7b4;font-family:var(--mono)}
+.ai-mkn{font-size:11.5px;color:#8fa6c7;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -1846,39 +1850,41 @@ function post(url,opts,ms){
   opts.signal=c.signal;
   return fetch(url,opts).then(function(r){clearTimeout(to);return r},function(e){clearTimeout(to);throw e});
 }
-var LAST=[];
+var LAST=[],GL=null,ML=null;
 function note(e){LAST.push(String(e&&e.message||e).slice(0,140))}
 function clean(t){return String(t).replace(/<think>[\s\S]*?<\/think>/gi,"").trim()}
-function call(url,opts,pick,tag){
-  return post(url,opts,30000).then(function(r){
+function call(url,opts,pick,tag,ms){
+  return post(url,opts,ms||40000).then(function(r){
     if(!r.ok)return r.text().then(function(t){var m="";try{m=((JSON.parse(t).error)||{}).message||""}catch(x){}throw new Error(tag+" ["+r.status+"] "+m)});
     return r.json();
   },function(e){throw new Error(tag+" [net] "+(e&&e.name==="AbortError"?"timeout":"blocked/offline"))})
-  .then(function(j){var t=pick(j);if(!t||!String(t).trim())throw new Error(tag+" [empty]");return t});
+  .then(function(j){var t=pick(j);if(!t||!String(t).trim())throw new Error(tag+" ["+"empty]");return t});
 }
-/* --- Groq: اكتشاف الموديلات المتاحة للمفتاح تلقائيًا --- */
+/* ---- Groq: الموديلات المتاحة للمفتاح (مع تفضيل موديلات البحث compound) ---- */
 function groqModels(){
+  if(GL)return Promise.resolve(GL);
   return call("https://api.groq.com/openai/v1/models",{method:"GET",headers:{"Authorization":"Bearer "+K[0]}},
-    function(j){return JSON.stringify((j&&j.data||[]).map(function(m){return m.id}))},"M1/list")
+    function(j){return JSON.stringify((j&&j.data||[]).map(function(m){return m.id}))},"M1/list",20000)
   .then(JSON.parse).catch(function(e){if(st.gone)throw e;note(e);return[]})
   .then(function(ids){
-    var bad=/whisper|tts|guard|embed|orpheus|playai|allam|safeguard/i,pref=[/gpt-oss-120b/,/llama-3\.3-70b/,/llama-4/,/kimi/,/qwen/,/gpt-oss-20b/,/llama-3\.1-8b/],ok=ids.filter(function(i){return!bad.test(i)}),out=[];
+    var bad=/whisper|tts|guard|embed|orpheus|playai|allam|safeguard/i,pref=[/compound(?!-mini)/,/compound-mini/,/gpt-oss-120b/,/llama-3\.3-70b/,/llama-4/,/kimi/,/qwen/,/gpt-oss-20b/,/llama-3\.1-8b/],ok=ids.filter(function(i){return!bad.test(i)}),out=[];
     pref.forEach(function(r){ok.forEach(function(i){if(r.test(i)&&out.indexOf(i)<0)out.push(i)})});
     ok.forEach(function(i){if(out.indexOf(i)<0)out.push(i)});
-    ["openai/gpt-oss-120b","llama-3.3-70b-versatile"].forEach(function(i){if(out.indexOf(i)<0&&!ids.length)out.push(i)});
-    return out.slice(0,4);
+    if(!ids.length)out=["groq/compound","openai/gpt-oss-120b"];
+    GL=out.slice(0,5);return GL;
   });
 }
-function groqAsk(model,q){
-  var b={model:model,temperature:.4,max_tokens:4000,messages:[{role:"system",content:SYS},{role:"user",content:"اريد تحليل سهم "+q}]};
+function groqAsk(model,pkg){
+  var b={model:model,temperature:.3,max_tokens:pkg.tokens||4000,messages:[{role:"system",content:pkg.sys},{role:"user",content:pkg.user}]};
   if(/gpt-oss/.test(model))b.reasoning_effort="low";
   return call("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K[0]},body:JSON.stringify(b)},
-    function(j){var t=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;return t&&clean(t)},"M1/"+model);
+    function(j){var t=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;return t&&clean(t)},"M1/"+model,60000);
 }
-/* --- Gemini: اكتشاف الموديلات المتاحة للمفتاح تلقائيًا --- */
+/* ---- Gemini: الموديلات المتاحة + بحث جوجل المباشر ---- */
 function gemModels(){
+  if(ML)return Promise.resolve(ML);
   return call("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",{method:"GET",headers:{"x-goog-api-key":K[1]}},
-    function(j){return JSON.stringify((j&&j.models||[]).filter(function(m){return(m.supportedGenerationMethods||[]).indexOf("generateContent")>-1}).map(function(m){return String(m.name).replace(/^models\//,"")}))},"M2/list")
+    function(j){return JSON.stringify((j&&j.models||[]).filter(function(m){return(m.supportedGenerationMethods||[]).indexOf("generateContent")>-1}).map(function(m){return String(m.name).replace(/^models\//,"")}))},"M2/list",20000)
   .then(JSON.parse).catch(function(e){if(st.gone)throw e;note(e);return[]})
   .then(function(ids){
     var bad=/embed|image|tts|live|audio|robotics|computer|gemma|lite|exp|learnlm|aqa|imagen|veo/i;
@@ -1886,25 +1892,59 @@ function gemModels(){
     function ver(i){var m=/gemini-(\d+(?:\.\d+)?)/.exec(i);return m?parseFloat(m[1]):0}
     ok.sort(function(x,y){var fx=/flash/.test(x)?1:0,fy=/flash/.test(y)?1:0;return fy-fx||ver(y)-ver(x)});
     var out=["gemini-flash-latest"];ok.forEach(function(i){if(out.indexOf(i)<0)out.push(i)});
-    return out.slice(0,4);
+    ML=out.slice(0,4);return ML;
   });
 }
-function gemAsk(model,q){
-  var body=JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:[{role:"user",parts:[{text:"اريد تحليل سهم "+q}]}],generationConfig:{temperature:.4,maxOutputTokens:8192}});
-  return call("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":K[1]},body:body},
-    function(j){var ps=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];return clean(ps.map(function(p){return p.text||""}).join(""))},"M2/"+model);
+function gemReq(model,pkg,search){
+  var o={systemInstruction:{parts:[{text:pkg.sys}]},contents:[{role:"user",parts:[{text:pkg.user}]}],generationConfig:{temperature:.3,maxOutputTokens:8192}};
+  if(search)o.tools=[{google_search:{}}];
+  return call("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":K[1]},body:JSON.stringify(o)},
+    function(j){var ps=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];return clean(ps.map(function(p){return p.text||""}).join(""))},"M2/"+model+(search?"+search":""),60000);
 }
-function tryList(models,fn,q){
+function gemAsk(model,pkg){
+  if(pkg.nosearch)return gemReq(model,pkg,false);
+  return gemReq(model,pkg,true).catch(function(e){if(st.gone)throw e;note(e);return gemReq(model,pkg,false)});
+}
+function tryList(models,fn,pkg){
   function go(i){
     if(i>=models.length)return Promise.reject(new Error("exhausted"));
-    return fn(models[i],q).catch(function(e){if(st.gone)throw e;note(e);return go(i+1)});
+    return fn(models[i],pkg).catch(function(e){if(st.gone)throw e;note(e);return go(i+1)});
   }
   return go(0);
 }
-function askAI(q){
-  LAST=[];
-  return groqModels().then(function(m){return tryList(m,groqAsk,q)})
-  .catch(function(e){if(st.gone)throw e;return gemModels().then(function(m){return tryList(m,gemAsk,q)})});
+function chatAsk(pkg){
+  return groqModels().then(function(m){return tryList(m,groqAsk,pkg)})
+  .catch(function(e){if(st.gone)throw e;return gemModels().then(function(m){return tryList(m,gemAsk,pkg)})});
+}
+/* ---- بيانات السوق الحية (TradingView) ---- */
+var COLS=["name","description","close","change","volume","high","low","open","price_52_week_high","price_52_week_low","market_cap_basic","price_earnings_ttm","earnings_per_share_basic_ttm","dividends_yield_current","RSI","SMA20","SMA50","SMA200","MACD.macd","MACD.signal","Recommend.All","sector","industry","Perf.W","Perf.1M","Perf.3M","Perf.Y","Perf.YTD","return_on_equity","debt_to_equity","price_book_fq"];
+function scan(tk,cols){
+  return post("https://scanner.tradingview.com/egypt/scan",{method:"POST",body:JSON.stringify({symbols:{tickers:["EGX:"+tk]},columns:cols})},12000)
+  .then(function(r){if(!r.ok)throw new Error("scan "+r.status);return r.json()})
+  .then(function(j){var d=j&&j.data&&j.data[0]&&j.data[0].d;if(!d)throw new Error("scan empty");var o={};cols.forEach(function(c,i){o[c]=d[i]});return o});
+}
+function market(tk){return scan(tk,COLS).catch(function(e){if(st.gone)throw e;return scan(tk,COLS.slice(0,10))})}
+function resolveTicker(q){
+  if(/^[A-Za-z][A-Za-z0-9.]{1,7}$/.test(q))return Promise.resolve(q.toUpperCase());
+  return chatAsk({sys:"أنت قاموس رموز أسهم البورصة المصرية على TradingView (EGX). أجب برمز السهم فقط بحروف إنجليزية كبيرة مثل COMI أو ETEL. وإن لم تكن متأكدًا أجب NONE فقط.",user:q,tokens:500,nosearch:true})
+  .then(function(t){t=String(t).toUpperCase();if(/NONE/.test(t))return null;var m=/\b[A-Z][A-Z0-9.]{1,7}\b/.exec(t);return m?m[0]:null}).catch(function(e){if(st.gone)throw e;return null});
+}
+function nfmt(x){return typeof x==="number"&&isFinite(x)?(Math.abs(x)>=1e6?(x/1e6).toFixed(2)+"M":x.toFixed(2)):null}
+function todayAr(){try{return new Intl.DateTimeFormat("ar-EG",{timeZone:"Africa/Cairo",dateStyle:"full",timeStyle:"short"}).format(new Date())}catch(e){return new Date().toString()}}
+function pkgFor(q,mk,tk){
+  var iso=new Date().toISOString().slice(0,10);
+  var sys=SYS+"\n- تاريخ اليوم الفعلي: "+todayAr()+" ("+iso+"). لا تعتمد على معلوماتك المخزنة القديمة (مثل بيانات 2024) في الأسعار أو النتائج المالية أو الأخبار.\n- إن توفر لك بحث على الإنترنت فاستخدمه لجلب آخر الأخبار والنتائج المالية والإعلانات المنشورة قبل التحليل، واذكر تاريخ أي رقم تعتمد عليه.\n- إن أُرفقت بيانات سوق حية فهي المرجع الأول للأسعار والمؤشرات الفنية، ولا تناقضها. وإن لم تتوفر بيانات حديثة لبند ما فاكتب «غير متوفر حاليًا» بدل التخمين.\n- ابدأ التحليل بسطر يوضح تاريخ البيانات التي اعتمدت عليها.";
+  var u="اريد تحليل سهم "+q;
+  if(mk){var o={};Object.keys(mk).forEach(function(k){var v=mk[k];if(v!==null&&v!==undefined)o[k]=typeof v==="number"?Math.round(v*1e4)/1e4:v});
+    u+="\n\nبيانات السوق الحية من TradingView وقت الطلب ("+iso+") للرمز EGX:"+tk+" (آخر سعر متاح للجلسة):\n"+JSON.stringify(o)}
+  else u+="\n\n(لم تتوفر بيانات حية لهذا السهم من TradingView؛ استخدم البحث إن أمكن ولا تخترع أرقامًا.)";
+  return{sys:sys,user:u,tokens:4000};
+}
+function mkHtml(mk,tk){
+  if(!mk)return"";
+  var rows=[["السعر",nfmt(mk.close)],["التغير",mk.change!=null&&nfmt(mk.change)?nfmt(mk.change)+"%":null],["حجم التداول",nfmt(mk.volume)],["أعلى 52 أسبوع",nfmt(mk.price_52_week_high)],["أدنى 52 أسبوع",nfmt(mk.price_52_week_low)],["مكرر الربحية P/E",nfmt(mk.price_earnings_ttm)],["ربحية السهم EPS",nfmt(mk.earnings_per_share_basic_ttm)],["RSI",nfmt(mk.RSI)]].filter(function(r){return r[1]});
+  if(!rows.length)return"";
+  return'<div class="ai-mk">'+rows.map(function(r){return'<div><span>'+esc(r[0])+'</span><b dir="ltr">'+esc(r[1])+'</b></div>'}).join("")+'</div><div class="ai-mkn">بيانات حية من TradingView للرمز '+esc(tk)+' — '+esc(todayAr())+'</div>';
 }
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function inl(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")}
@@ -1925,10 +1965,13 @@ function submit(){
   var inp=$("#aiQ"),q=inp.value.replace(/\s+/g," ").trim();
   if(st.busy)return;
   if(!q){var b=$("#aiSearch");b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");inp.focus();return}
-  st.busy=true;$("#aiLoad").hidden=false;$("#aiOut").innerHTML="";
-  askAI(q).then(function(txt){
+  st.busy=true;LAST=[];$("#aiLoad").hidden=false;$("#aiOut").innerHTML="";
+  var TK=null,MK=null;
+  resolveTicker(q).then(function(tk){TK=tk;return tk?market(tk).catch(function(e){if(st.gone)throw e;note(e);return null}):null})
+  .then(function(mk){MK=mk;return chatAsk(pkgFor(q,mk,TK))})
+  .then(function(txt){
     if(st.gone)return;
-    $("#aiOut").innerHTML='<div class="ai-card"><h2>تحليل سهم: '+esc(q)+'</h2>'+md(txt)+'<div class="ai-note">المحتوى مولَّد بالذكاء الاصطناعي لأغراض تعليمية، وقد لا يعكس البيانات اللحظية. راجع الشارت والقوائم المالية قبل أي قرار.</div><button class="ai-again" type="button" id="aiAgain">تحليل سهم آخر</button></div>';
+    $("#aiOut").innerHTML='<div class="ai-card"><h2>تحليل سهم: '+esc(q)+'</h2>'+mkHtml(MK,TK)+md(txt)+'<div class="ai-note">المحتوى مولَّد بالذكاء الاصطناعي لأغراض تعليمية. راجع الشارت والقوائم المالية قبل أي قرار.</div><button class="ai-again" type="button" id="aiAgain">تحليل سهم آخر</button></div>';
     var ag=document.getElementById("aiAgain");
     if(ag)ag.onclick=function(){$("#aiOut").innerHTML="";inp.value="";inp.focus();page.scrollTo({top:0,behavior:"smooth"})};
     setTimeout(function(){var c=$("#aiOut .ai-card");if(c)c.scrollIntoView({behavior:"smooth",block:"start"})},80);
