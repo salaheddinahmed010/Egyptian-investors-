@@ -512,13 +512,15 @@ img,svg,canvas,video,iframe{max-width:100%}
 .ai-mkn{font-size:11.5px;color:#8fa6c7;margin-bottom:8px}
 </style>
 <style>
-#tkr{background:#061528;border:1px solid #1e3a5f;border-radius:14px;overflow:hidden;height:40px;direction:ltr;margin:0 0 22px;max-width:100%}
-.tk-t{display:flex;width:max-content;animation:tkm 90s linear infinite;height:40px;align-items:center}
+#tkr{background:#061528;border:1px solid #1e3a5f;border-radius:14px;overflow:hidden;height:54px;direction:ltr;margin:0 0 22px;max-width:100%}
+.tk-t{display:flex;width:max-content;animation:tkm 90s linear infinite;height:100%;align-items:center}
 #tkr:hover .tk-t{animation-play-state:paused}
 @keyframes tkm{to{transform:translateX(-50%)}}
-.tk-i{display:flex;align-items:center;gap:7px;padding:0 20px;border-inline-end:1px solid #1e3a5f;font:600 13px var(--head);color:#f8f6f0;white-space:nowrap;direction:rtl}
-.tk-i .num{font-size:13px}.tk-u{color:#4fc48f}.tk-d{color:#e88a91}.tk-i .tr{font-size:11px}
+.tk-i{display:flex;align-items:center;gap:7px;padding:0 20px;border-inline-end:1px solid #1e3a5f;font:600 14px/1.2 var(--head);color:#f8f6f0;white-space:nowrap;direction:rtl}
+.tk-i .num{font-size:14px}.tk-u{color:#4fc48f}.tk-d{color:#e88a91}.tk-i .tr{font-size:11px}
 @media(prefers-reduced-motion:reduce){.tk-t{animation:none;overflow:auto}}
+#tkr.fbk{height:auto;min-height:80px}#tkr.fbk .tk-t{display:block;width:100%;height:auto;min-height:78px;animation:none;transform:none}#tkr .tradingview-widget-container{width:100%;min-height:78px}
+@media(max-width:600px){#tkr{height:50px;border-radius:12px}.tk-i{padding:0 14px;gap:6px;font-size:13px}.tk-i .num{font-size:13px}}
 .cc-tabs{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
 .cc-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
 @media(max-width:800px){.cc-g{grid-template-columns:1fr}}
@@ -724,19 +726,20 @@ img,svg,canvas,video,iframe{max-width:100%}
 <div id="cIntro" hidden><div class="ci-s"><div class="ci-cube"><i>+</i><i>%</i><i>×</i><i>÷</i><i>$</i><i>=</i></div></div><p id="ciT">…</p></div>
 <section style="border-top:none"><div class="wrap">
 <div class="sh"><div><div class="eb">SMART CALCULATOR</div><h2>الحاسبة المالية الذكية</h2></div><span class="pill">EGX</span></div>
+<div class="lvh"><a class="btn o" href="#home">← الرجوع للرئيسية</a></div>
 <div class="cc-tabs"><button class="btn" id="cm1" type="button">العائد المركب</button><button class="btn o" id="cm2" type="button">صافي ربح صفقة سهم</button></div>
 <div class="cc-g">
 <div class="pn" id="cp1"><h4>العائد المركب</h4><div class="sub">استثمار مع إضافة شهرية اختيارية وخصم العمولة</div>
-<div class="fl"><label>المبلغ الأولي (ج.م)</label><input id="a1" type="number" inputmode="decimal" value="100000"></div>
-<div class="fl"><label>العائد السنوي المتوقع %</label><input id="a2" type="number" inputmode="decimal" value="20"></div>
-<div class="fl"><label>المدة (سنوات)</label><input id="a3" type="number" inputmode="decimal" value="5"></div>
-<div class="fl"><label>إضافة شهرية (اختياري)</label><input id="a4" type="number" inputmode="decimal" value="0"></div>
-<div class="fl"><label>العمولة % (على كل إيداع وعلى البيع النهائي)</label><input id="a5" type="number" inputmode="decimal" value="0.3"></div></div>
+<div class="fl"><label>المبلغ الأولي (ج.م)</label><input id="a1" type="text" inputmode="decimal" autocomplete="off" value="100000"></div>
+<div class="fl"><label>العائد السنوي المتوقع %</label><input id="a2" type="text" inputmode="decimal" autocomplete="off" value="20"></div>
+<div class="fl"><label>المدة (سنوات)</label><input id="a3" type="text" inputmode="decimal" autocomplete="off" value="5"></div>
+<div class="fl"><label>إضافة شهرية (اختياري)</label><input id="a4" type="text" inputmode="decimal" autocomplete="off" value="0"></div>
+<div class="fl"><label>العمولة % (على كل إيداع وعلى البيع النهائي)</label><input id="a5" type="text" inputmode="decimal" autocomplete="off" value="0.3"></div></div>
 <div class="pn" id="cp2" hidden><h4>صافي ربح صفقة سهم</h4><div class="sub">بعد خصم عمولة الشراء والبيع</div>
-<div class="fl"><label>سعر الشراء</label><input id="b1" type="number" inputmode="decimal" value="10"></div>
-<div class="fl"><label>سعر البيع</label><input id="b2" type="number" inputmode="decimal" value="12"></div>
-<div class="fl"><label>عدد الأسهم</label><input id="b3" type="number" inputmode="decimal" value="1000"></div>
-<div class="fl"><label>العمولة % لكل عملية</label><input id="b4" type="number" inputmode="decimal" value="0.3"></div></div>
+<div class="fl"><label>سعر الشراء</label><input id="b1" type="text" inputmode="decimal" autocomplete="off" value="10"></div>
+<div class="fl"><label>سعر البيع</label><input id="b2" type="text" inputmode="decimal" autocomplete="off" value="12"></div>
+<div class="fl"><label>عدد الأسهم</label><input id="b3" type="text" inputmode="decimal" autocomplete="off" value="1000"></div>
+<div class="fl"><label>العمولة % لكل عملية</label><input id="b4" type="text" inputmode="decimal" autocomplete="off" value="0.3"></div></div>
 <div class="pn"><h4>النتيجة</h4><div id="cout"></div><div class="lk">النتائج تقديرية لأغراض تعليمية وليست نصيحة استثمارية. نسب العمولة تختلف من شركة سمسرة لأخرى.</div></div>
 </div></div></section></main>
 <main data-view="forum" hidden>
@@ -2125,20 +2128,27 @@ var $=function(s){return document.querySelector(s)},N=function(x,d){return Numbe
 var S=[["EGX:EGX30","EGX 30"],["EGX:SHARIAH","EGX 33 الشرعي"],["EGX:ETEL","المصرية للاتصالات"],["EGX:EFID","إيديتا"],["EGX:JUFO","جهينة"],["EGX:COMI","البنك التجاري الدولي"],["EGX:CRST","كريست مارك"],["NASDAQ:GOOG","جوجل GOOG"],["EGX:POUL","القاهرة للدواجن"]];
 var G=[["ذهب عيار 21 (جرام)",21/24/31.1035],["ذهب عيار 18 (جرام)",18/24/31.1035],["الجنيه الذهب (8 جرام)",21/24/31.1035*8]];
 function item(n,p,c,cur){var u=c>=0;return '<div class="tk-i"><b>'+n+'</b><span class="tr '+(u?"tk-u":"tk-d")+'">'+(u?"▲":"▼")+'</span><span class="num '+(u?"tk-u":"tk-d")+'">'+N(c)+'%</span><span class="num">'+N(p)+(cur?" "+cur:"")+'</span></div>'}
-function fb(){var T=$("#tkT");T.style.animation="none";T.innerHTML='<div class="tradingview-widget-container"></div>';var s=document.createElement("script");s.src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js";s.async=true;s.text=JSON.stringify({symbols:S.concat([["TVC:GOLD","الذهب"],["FX_IDC:USDEGP","الدولار/جنيه"]]).map(function(x){return{proName:x[0],title:x[1]}}),colorTheme:"dark",isTransparent:true,displayMode:"adaptive",locale:"ar_AE"});T.firstChild.appendChild(s);$("#tkr").style.height="auto"}
-fetch("https://scanner.tradingview.com/global/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({symbols:{tickers:S.map(function(x){return x[0]}).concat(["TVC:GOLD","FX_IDC:USDEGP"])},columns:["close","change"]})}).then(function(r){return r.json()}).then(function(j){
-var m={};(j.data||[]).forEach(function(r){m[r.s]=r.d});var h="";
+function fb(){var T=$("#tkT");$("#tkr").classList.add("fbk");T.style.animation="none";T.innerHTML='<div class="tradingview-widget-container"></div>';var s=document.createElement("script");s.src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js";s.async=true;s.text=JSON.stringify({symbols:S.concat([["TVC:GOLD","الذهب"],["FX_IDC:USDEGP","الدولار/جنيه"]]).map(function(x){return{proName:x[0],title:x[1]}}),colorTheme:"dark",isTransparent:true,displayMode:"adaptive",locale:"ar_AE"});T.firstChild.appendChild(s)}
+function scanAt(mk,tk){return fetch("https://scanner.tradingview.com/"+mk+"/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({symbols:{tickers:tk},columns:["close","change"]})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return j.data||[]}).catch(function(){return[]})}
+var ALL=S.map(function(x){return x[0]}).concat(["TVC:GOLD","FX_IDC:USDEGP"]);
+function build(rows){var m={};rows.forEach(function(r){if(r&&r.d&&r.d[0]!=null)m[r.s]=r.d});var h="";
 S.forEach(function(x){var d=m[x[0]];if(d&&d[0]!=null)h+=item(x[1],d[0],d[1]||0,x[0].indexOf("NASDAQ")==0?"$":"")});
 var g=m["TVC:GOLD"],u=m["FX_IDC:USDEGP"];if(g&&u){var ch=((1+(g[1]||0)/100)*(1+(u[1]||0)/100)-1)*100;G.forEach(function(x){h+=item(x[0],g[0]*u[0]*x[1],ch,"ج.م")})}
-if(!h)throw 0;$("#tkT").innerHTML=h+h}).catch(fb);
+return h}
+scanAt("global",ALL).then(function(rows){if(rows.length>=ALL.length-1)return rows;
+return Promise.all([scanAt("egypt",ALL.filter(function(x){return x.indexOf("EGX:")==0})),scanAt("america",["NASDAQ:GOOG"]),scanAt("forex",["FX_IDC:USDEGP"]),scanAt("cfd",["TVC:GOLD"])]).then(function(a){return rows.concat.apply(rows,a)})})
+.then(function(rows){var h=build(rows);if(!h)throw 0;var T=$("#tkT");T.innerHTML=h;var w=T.scrollWidth||1,k=Math.max(1,Math.ceil($("#tkr").clientWidth/w)),one=new Array(k+1).join(h);T.innerHTML=one+one}).catch(fb);
 /* ---- calculator ---- */
 var mode=1;
-function v(id){return parseFloat($("#"+id).value)||0}
+function num(s){s=String(s==null?"":s).replace(/[\u0660-\u0669]/g,function(d){return d.charCodeAt(0)-1632}).replace(/[\u06F0-\u06F9]/g,function(d){return d.charCodeAt(0)-1776}).replace(/\u066B/g,".").replace(/[\u066C,\u060C\s]/g,"");var x=parseFloat(s);return isFinite(x)?x:0}
+function v(id){return num($("#"+id).value)}
 function calc(){var o="";
-if(mode==1){var P=v("a1"),r=v("a2")/100,y=v("a3"),pm=v("a4"),c=v("a5")/100,mo=Math.round(y*12),rm=Math.pow(1+r,1/12)-1,b=P*(1-c),dep=P,rows="";
-for(var i=1;i<=mo;i++){b=b*(1+rm)+pm*(1-c);dep+=pm;if(i%12==0)rows+="<tr><td>"+i/12+"</td><td class=num>"+N(dep,0)+"</td><td class=num>"+N(b,0)+"</td></tr>"}
+if(mode==1){var P=Math.max(0,v("a1")),r=v("a2")/100,y=Math.min(Math.max(v("a3"),0),100),pm=Math.max(0,v("a4")),c=v("a5")/100;
+if(c<0||c>=1||r<=-1){o='<div class="cr"><span class="down">'+(c<0||c>=1?"العمولة يجب أن تكون بين 0% وأقل من 100%":"العائد السنوي يجب أن يكون أكبر من -100%")+'</span></div>'}
+else{var mo=Math.round(y*12),rm=Math.pow(1+r,1/12)-1,b=P*(1-c),dep=P,rows="";
+for(var i=1;i<=mo;i++){b=b*(1+rm)+pm*(1-c);dep+=pm;if(i%12==0||i==mo)rows+="<tr><td>"+(i%12==0?i/12:N(i/12,1))+"</td><td class=num>"+N(dep,0)+"</td><td class=num>"+N(b,0)+"</td></tr>"}
 var net=b*(1-c),pr=net-dep;
-o='<div class="cr"><span>إجمالي المدفوع</span><b class=num>'+N(dep)+'</b></div><div class="cr"><span>القيمة النهائية قبل عمولة البيع</span><b class=num>'+N(b)+'</b></div><div class="cr"><span>القيمة الصافية بعد العمولات</span><b class="num big">'+N(net)+'</b></div><div class="cr"><span>صافي الربح</span><b class="num '+(pr>=0?"up":"down")+'">'+N(pr)+' ('+N(dep?pr/dep*100:0)+'%)</b></div>'+(rows?'<div class="cc-w"><table class="cc-t"><tr><th>السنة</th><th>المدفوع</th><th>الرصيد</th></tr>'+rows+'</table></div>':"")}
+o='<div class="cr"><span>إجمالي المدفوع</span><b class=num>'+N(dep)+'</b></div><div class="cr"><span>القيمة النهائية قبل عمولة البيع</span><b class=num>'+N(b)+'</b></div><div class="cr"><span>القيمة الصافية بعد العمولات</span><b class="num big">'+N(net)+'</b></div><div class="cr"><span>صافي الربح</span><b class="num '+(pr>=0?"up":"down")+'">'+N(pr)+' ('+N(dep?pr/dep*100:0)+'%)</b></div>'+(rows?'<div class="cc-w"><table class="cc-t"><tr><th>السنة</th><th>المدفوع</th><th>الرصيد</th></tr>'+rows+'</table></div>':"")}}
 else{var p=v("b1"),s=v("b2"),q=v("b3"),k=v("b4")/100,cost=p*q*(1+k),rev=s*q*(1-k),n2=rev-cost,fee=p*q*k+s*q*k;
 o='<div class="cr"><span>تكلفة الشراء شاملة العمولة</span><b class=num>'+N(cost)+'</b></div><div class="cr"><span>حصيلة البيع بعد العمولة</span><b class=num>'+N(rev)+'</b></div><div class="cr"><span>إجمالي العمولات</span><b class=num>'+N(fee)+'</b></div><div class="cr"><span>صافي الربح</span><b class="num big '+(n2>=0?"up":"down")+'">'+N(n2)+' ('+N(cost?n2/cost*100:0)+'%)</b></div><div class="cr"><span>سعر التعادل</span><b class=num>'+N(k<1?p*(1+k)/(1-k):0)+'</b></div>'}
 $("#cout").innerHTML=o}
